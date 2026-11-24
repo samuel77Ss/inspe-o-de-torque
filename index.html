@@ -688,7 +688,7 @@ window.PFX&&window.PFX.dim(true);</script>
       <div class="stack" style="max-width:1200px">
         <div id="tm-alert"></div>
         <div class="card">
-          <div class="actions" style="margin:0 0 12px"><h3 style="margin:0;flex:1">Torquímetros cadastrados <small>LOCMAIS · aviso a partir de <span id="tm-days"></span> dias do vencimento</small></h3>
+          <div class="actions" style="margin:0 0 12px"><h3 style="margin:0;flex:1">Torquímetros cadastrados <small>LOCMAIS / INGEL · aviso a partir de <span id="tm-days"></span> dias do vencimento</small></h3>
           <button class="btn primary" id="tm-add">+ Novo torquímetro</button></div>
           <div class="tablewrap" style="max-height:none"><table><thead><tr><th class="nosort">Nº instrumento</th><th class="nosort">Escala</th><th class="nosort">Resolução</th><th class="nosort">Fabricante / modelo</th><th class="nosort">Calibração</th><th class="nosort">Validade</th><th class="nosort">Nº certificado</th><th class="nosort">Empresa</th><th class="nosort c">Situação</th><th class="nosort"></th></tr></thead><tbody id="tm-body"></tbody></table></div>
         </div>
@@ -726,7 +726,7 @@ window.PFX&&window.PFX.dim(true);</script>
     <div id="mi-tminfo"></div>
     <div class="row2">
       <label class="f">Torque aplicado (N·m)<input type="number" id="mi-tq" min="0" step="1" placeholder="ex.: 420"></label>
-      <label class="f">Torque<select id="mi-torque"><option>OK</option><option>Não OK</option></select></label>
+      <label class="f">Resultado<select id="mi-torque"><option>Aprovado</option><option>Reprovado</option></select></label>
     </div>
     <div id="mi-tqinfo"></div>
     <label class="f">Observação<textarea id="mi-obs" rows="2"></textarea></label>
@@ -1897,20 +1897,353 @@ const TORQUE_TAB = [["½\"","½\"-13UNC",98,116,10,12],
  ["1⅜\"","1.3/8\"-6UNC",2335,2370,238,242],
  ["1½\"","1.1/2\"-6UNC",3040,3090,310,315]]
 ;
-const TM_BASE = [["A001.265","TORQUIMETRO (155-760Nm)",155,760,"10Nm","GEDORE","GEDORE D",365,"2026-06-18","2027-06-18","CALIBRADO","133/2026"],
- ["A001.263","TORQUIMETRO (155-760Nm)",155,760,"10Nm","GEDORE","GEDORE D",365,"2026-06-18","2027-06-18","CALIBRADO","132/2026"],
- ["A001346","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","136/2026"],
- ["A001274","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","DR",365,"2026-06-24","2027-06-24","CALIBRADO","137/2026"],
- ["A001203","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","DR",365,"2026-06-24","2027-06-24","CALIBRADO","138/2026"],
- ["A001291","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","139/2026"],
- ["A001033","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","DR",365,"2026-06-24","2027-06-24","CALIBRADO","140/2026"],
- ["A001177","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","141/2026"],
- ["A001223","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","143/2026"],
- ["A001.111","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","161/2026"],
- ["A001.079","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","151/2026"],
- ["A001.224","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","160/2026"],
- ["A001.147","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","154/2026"]]
-;
+const TM_BASE = [
+[
+"A001.265",
+"TORQUIMETRO (155-760Nm)",
+155,
+760,
+"10Nm",
+"GEDORE",
+"GEDORE D",
+365,
+"2026-06-18",
+"2027-06-18",
+"CALIBRADO",
+"133/2026",
+"LOCMAIS"
+],
+[
+"A001.263",
+"TORQUIMETRO (155-760Nm)",
+155,
+760,
+"10Nm",
+"GEDORE",
+"GEDORE D",
+365,
+"2026-06-18",
+"2027-06-18",
+"CALIBRADO",
+"132/2026",
+"LOCMAIS"
+],
+[
+"A001346",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"136/2026",
+"LOCMAIS"
+],
+[
+"A001274",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"DR",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"137/2026",
+"LOCMAIS"
+],
+[
+"A001203",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"DR",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"138/2026",
+"LOCMAIS"
+],
+[
+"A001291",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"139/2026",
+"LOCMAIS"
+],
+[
+"A001033",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"DR",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"140/2026",
+"LOCMAIS"
+],
+[
+"A001177",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"141/2026",
+"LOCMAIS"
+],
+[
+"A001223",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"143/2026",
+"LOCMAIS"
+],
+[
+"A001.111",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"161/2026",
+"LOCMAIS"
+],
+[
+"A001.079",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"151/2026",
+"LOCMAIS"
+],
+[
+"A001.224",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"160/2026",
+"LOCMAIS"
+],
+[
+"A001.147",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"154/2026",
+"LOCMAIS"
+],
+[
+"A001.099",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2025-07-15",
+"2026-07-15",
+"CALIBRADO",
+"127/2025",
+"LOCMAIS"
+],
+[
+"A001.305",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"123/2026",
+"LOCMAIS"
+],
+[
+"7434",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"TYP E",
+365,
+"2025-12-08",
+"2026-12-08",
+"CALIBRADO",
+"20253221",
+"INGEL"
+],
+[
+"7433",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"TYP E",
+365,
+"2025-12-08",
+"2026-12-08",
+"CALIBRADO",
+"20253220",
+"INGEL"
+],
+[
+"A001.255",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-03-31",
+"2027-03-31",
+"CALIBRADO",
+"46/2026",
+"LOCMAIS"
+],
+[
+"A001.271",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"GEDORE E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"122/2026",
+"LOCMAIS"
+],
+[
+"A001.262",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"124/2026",
+"LOCMAIS"
+],
+[
+"A001.058",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"125/2026",
+"LOCMAIS"
+],
+[
+"A001.219",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"126/2026",
+"LOCMAIS"
+],
+[
+"A001.254",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-03-31",
+"2027-03-31",
+"CALIBRADO",
+"45/2026",
+"LOCMAIS"
+]
+];
 </script>
 <script>
 /*! xlsx.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -1954,7 +2287,11 @@ function tagToks(j,words){ let t=String(j.tagj).split(' / '); if(words&&words.le
 const tagMain=(j,w)=>tagToks(j,w)[0], tagRest=(j,w)=>tagToks(j,w).slice(1).join(' / ')||'—', tagAll=j=>j.tagj;
 const byItem = new Map(J.map(j=>[j.item,j]));
 let S = load();   // { insp: {item:{s,d,i,r,t,o,at,tm,tq}}, tm:[...] }
-if(!S.tm) S.tm = TM_BASE.map(a=>({n:a[0],desc:a[1],emin:a[2],emax:a[3],res:a[4],fab:a[5],mod:a[6],per:a[7],cal:a[8],val:a[9],stt:a[10],cert:a[11],emp:'LOCMAIS'}));
+const tmFromBase=a=>({n:a[0],desc:a[1],emin:a[2],emax:a[3],res:a[4],fab:a[5],mod:a[6],per:a[7],cal:a[8],val:a[9],stt:a[10],cert:a[11],emp:a[12]||'LOCMAIS'});
+if(!S.tm) S.tm = TM_BASE.map(tmFromBase);
+// torquímetros novos do cadastro entram mesmo para quem já tinha a lista salva
+function tmMergeBase(lista){ let add=0; TM_BASE.forEach(a=>{ if(!lista.some(t=>t.n===a[0])){ lista.push(tmFromBase(a)); add++; } }); return add; }
+tmMergeBase(S.tm);
 const tmBy = n=> S.tm.find(t=>t.n===n);
 function diasPara(iso){ if(!iso) return null; const [y,m,d]=iso.split('-').map(Number); const hoje=new Date(); hoje.setHours(0,0,0,0); return Math.round((new Date(y,m-1,d)-hoje)/864e5); }
 function tmSit(t, ref){ const dd = ref? (()=>{const [y,m,d]=t.val.split('-').map(Number); const [a,b,c]=ref.split('-').map(Number); return Math.round((new Date(y,m-1,d)-new Date(a,b-1,c))/864e5);})() : diasPara(t.val);
@@ -1968,7 +2305,10 @@ const esc = s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'
 const today = ()=>{const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const dBR = iso=>{ if(!iso) return ''; const [y,m,d]=String(iso).slice(0,10).split('-'); return d&&m&&y? `${d}/${m}/${y}`:String(iso); };
 
-function load(){ try{ const x=JSON.parse(localStorage.getItem(KEY)); if(x&&x.insp) return x; }catch(e){} return {insp:{}}; }
+// resultado do torque: Aprovado / Reprovado (valores antigos OK / Não OK continuam valendo)
+function normT(t){ return t==='OK'?'Aprovado': t==='Não OK'?'Reprovado': t; }
+const isRep=v=>!!v&&(v.t==='Reprovado'||v.t==='Não OK'), isApr=v=>!!v&&(v.t==='Aprovado'||v.t==='OK');
+function load(){ try{ const x=JSON.parse(localStorage.getItem(KEY)); if(x&&x.insp){ Object.values(x.insp).forEach(v=>{ v.t=normT(v.t); }); return x; } }catch(e){} return {insp:{}}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); $('#saved').textContent='Salvo neste computador · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ $('#saved').textContent='Atenção: não foi possível salvar no navegador – faça backup'; } }
 const st = j=> S.insp[j.item]? 'Inspecionado':'Pendente';
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.h); toast.h=setTimeout(()=>el.classList.remove('on'),3200); }
@@ -2000,13 +2340,13 @@ function renderCharts(){
   const tot30=vals.reduce((a,b)=>a+b,0);
   $('#c-dia').innerHTML=g+`<div class="muted" style="font-size:12px;margin-top:6px">${fmt(tot30)} junta(s) nos últimos 30 dias · média ${(tot30/D).toFixed(1)}/dia · total acumulado ${fmt(Object.keys(S.insp).length)}</div>`;
   // ---- conformidade
-  const vs=Object.values(S.insp), nOK=vs.filter(v=>v.t==='OK').length, nNOK=vs.filter(v=>v.t==='Não OK').length, nMan=vs.filter(v=>/manual/i.test(v.t||'')).length, nT=vs.length;
+  const vs=Object.values(S.insp), nOK=vs.filter(isApr).length, nNOK=vs.filter(isRep).length, nMan=vs.filter(v=>/manual/i.test(v.t||'')).length, nT=vs.length;
   const C=2*Math.PI*52, seg=[[nOK,'#47B27A'],[nMan,'#9FA8C9'],[nNOK,'#D9534F']]; let off=0, rings='';
   seg.forEach(([n,c])=>{ if(!n) return; const L2=C*n/nT; rings+=`<circle cx="66" cy="66" r="52" fill="none" stroke="${c}" stroke-width="12" stroke-dasharray="${L2} ${C}" stroke-dashoffset="${-off}" class="ring-anim" style="filter:drop-shadow(0 0 4px ${c}88)"/>`; off+=L2; });
   const conf=nT?((nOK+nMan)/nT*100):0;
   $('#c-conf').innerHTML=`<div class="gauge"><svg viewBox="0 0 132 132" style="transform:rotate(-90deg)"><circle cx="66" cy="66" r="52" fill="none" stroke="rgba(155,162,172,.12)" stroke-width="12"/>${rings}</svg>
     <div><div class="big" style="color:${nNOK?'var(--pend)':'var(--ok)'}">${nT?conf.toFixed(1)+'%':'—'}</div><div class="muted" style="font-size:12px;margin-bottom:10px">conformes</div>
-    <div class="legend"><div><i style="background:#47B27A;color:#47B27A"></i>Torque OK<b>${fmt(nOK)}</b></div><div><i style="background:#9FA8C9;color:#9FA8C9"></i>Aperto manual<b>${fmt(nMan)}</b></div><div><i style="background:#D9534F;color:#D9534F"></i>Não OK<b>${fmt(nNOK)}</b></div></div></div></div>`;
+    <div class="legend"><div><i style="background:#47B27A;color:#47B27A"></i>Aprovado<b>${fmt(nOK)}</b></div><div><i style="background:#9FA8C9;color:#9FA8C9"></i>Aperto manual<b>${fmt(nMan)}</b></div><div><i style="background:#D9534F;color:#D9534F"></i>Reprovado<b>${fmt(nNOK)}</b></div></div></div></div>`;
   // ---- instrumentos
   const st=S.tm.map(t=>[t,tmSit(t)]), nv=st.filter(x=>x[1].k==='ok').length, na=st.filter(x=>x[1].k==='aviso').length, nx=st.filter(x=>x[1].k==='venc').length;
   const prox=st.filter(x=>x[1].k!=='venc').sort((a,b)=>a[0].val.localeCompare(b[0].val))[0];
@@ -2125,7 +2465,7 @@ function openInsp(items){
   $('#mi-sum').innerHTML = `<b>${fmt(pendingItems.length)}</b> ligação(ões) · <b>${fmt(bolts)}</b> parafusos com qtd. definida${nd?` · ${nd} sem qtd. (conferir)`:''}`;
   $('#mi-data').value = $('#mi-data').value || today();
   fillNames('#mi-insp', $('#mi-insp').value||WS.lastInsp); fillNames('#mi-exe', $('#mi-exe').value||WS.lastExe);
-  $('#mi-obs').value=''; $('#mi-torque').value='OK'; $('#mi-tq').value='';
+  $('#mi-obs').value=''; $('#mi-torque').value='Aprovado'; $('#mi-tq').value='';
   const ref=$('#mi-data').value, keep=$('#mi-tm').value;
   $('#mi-tm').innerHTML='<option value="">— selecione —</option>'+S.tm.map(t=>{ const si=tmSit(t,ref); return `<option value="${esc(t.n)}" ${si.k==='venc'?'disabled':''}>${esc(t.n)} · ${escTxt(t)} · val. ${dBR(t.val)}${si.k==='venc'?' (VENCIDO)':si.k==='aviso'?' ⚠ '+si.txt.toLowerCase():''}</option>`; }).join('');
   if(keep && tmBy(keep) && tmSit(tmBy(keep),ref).k!=='venc') $('#mi-tm').value=keep;
@@ -2157,7 +2497,7 @@ function updTqInfo(){ const v=Number($('#mi-tq').value); const el=$('#mi-tqinfo'
   const ds=[...new Set(pendingItems.flatMap(i=>diams(byItem.get(i))))].filter(d=>TQ.get(d));
   if(ds.length!==1){ el.innerHTML=ds.length?'<div class="note warn" style="padding:9px 12px">A seleção tem mais de uma bitola – confira o torque de cada uma (ou dê baixa separada por bitola).</div>':''; return; }
   const q=TQ.get(ds[0]); const ok=v>=q.min&&v<=q.max;
-  $('#mi-torque').value = ok?'OK':'Não OK';
+  $('#mi-torque').value = ok?'Aprovado':'Reprovado';
   el.innerHTML=`<div class="note ${ok?'':'warn'}" style="padding:9px 12px">${ok?'Dentro':'<b>Fora</b>'} da faixa especificada para ${esc(ds[0])}: ${q.min} a ${q.max} N·m.</div>`; }
 $('#mi-tm').onchange=updTmInfo; $('#mi-tq').oninput=updTqInfo; $('#mi-data').addEventListener('change',()=>{ if($('#m-insp').classList.contains('on')) updTmInfo(); });
 function confirmBox(title,html,fn){ $('#mc-title').textContent=title; $('#mc-txt').innerHTML=html; $('#mc-ok').onclick=()=>{closeM();fn();}; openM('#m-conf'); }
@@ -2202,7 +2542,7 @@ function readXlsx(file){
     for(let k=hi+1;k<aoa.length;k++){ const r=aoa[k]; if(!r) continue; const it=Number(r[c.item]); if(!it||!byItem.has(it)) continue; res.total++;
       const j=byItem.get(it); const s=norm(r[c.s]);
       if(c.peca>=0 && norm(r[c.peca])!==norm(j.peca) || c.lig>=0 && norm(r[c.lig])!==norm(j.lig)){ res.div.push(it); continue; }
-      if(s==='INSPECIONADO'){ res.insp++; const v={s:'Inspecionado',d:toISO(r[c.d]),i:String(r[c.i]??'').trim(),r:String(r[c.r]??'').trim(),t:String(r[c.t]??'').trim(),o:String(r[c.o]??'').trim(),tm:c.tm>=0?String(r[c.tm]??'').trim():'',tq:c.tq>=0&&r[c.tq]!=null&&r[c.tq]!==''?Number(r[c.tq]):null,e:c.e>=0?String(r[c.e]??'').trim():''};
+      if(s==='INSPECIONADO'){ res.insp++; const v={s:'Inspecionado',d:toISO(r[c.d]),i:String(r[c.i]??'').trim(),r:String(r[c.r]??'').trim(),t:normT(String(r[c.t]??'').trim()),o:String(r[c.o]??'').trim(),tm:c.tm>=0?String(r[c.tm]??'').trim():'',tq:c.tq>=0&&r[c.tq]!=null&&r[c.tq]!==''?Number(r[c.tq]):null,e:c.e>=0?String(r[c.e]??'').trim():''};
         if(!v.d) res.semData.push(it);
         const cur=S.insp[it]; if(!cur) res.novos.push([it,v]); else if(cur.d!==v.d||cur.i!==v.i||cur.r!==v.r||cur.t!==v.t||cur.o!==v.o||(cur.tm||'')!==v.tm||(cur.tq??null)!==v.tq||(cur.e||'')!==v.e) res.alterados.push([it,v]); }
       else if(S.insp[it]) res.voltar.push(it);
@@ -2243,7 +2583,7 @@ $('#exp-xlsx').onclick=()=>{
   const ws2=XLSX.utils.aoa_to_sheet(res); ws2['!cols']=[26,34,14,14,14,14,18,18].map(w=>({wch:w}));
   for(let r=3;r<res.length;r++){ const ref=XLSX.utils.encode_cell({r,c:5}); if(ws2[ref]) ws2[ref].z='0.0%'; }
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Juntas'); XLSX.utils.book_append_sheet(wb,ws2,'Resumo');
-  const tma=[['CADASTRO DE TORQUÍMETROS – LOCMAIS'],[],['Nº INSTRUMENTO','DESCRIÇÃO','ESCALA','RESOLUÇÃO','FABRICANTE','MODELO','PERIODICIDADE (DIAS)','DATA DA CALIBRAÇÃO','VALIDADE','Nº CERTIFICADO','EMPRESA','SITUAÇÃO EM '+dBR(today())]];
+  const tma=[['CADASTRO DE TORQUÍMETROS'],[],['Nº INSTRUMENTO','DESCRIÇÃO','ESCALA','RESOLUÇÃO','FABRICANTE','MODELO','PERIODICIDADE (DIAS)','DATA DA CALIBRAÇÃO','VALIDADE','Nº CERTIFICADO','EMPRESA','SITUAÇÃO EM '+dBR(today())]];
   S.tm.forEach(t=>tma.push([t.n,t.desc,escTxt(t),t.res,t.fab,t.mod,t.per,dBR(t.cal),dBR(t.val),t.cert,t.emp,tmSit(t).txt]));
   const ws3=XLSX.utils.aoa_to_sheet(tma); ws3['!cols']=[16,26,16,13,12,12,13,14,12,14,11,20].map(w=>({wch:w})); XLSX.utils.book_append_sheet(wb,ws3,'Torquímetros');
   const tta=[['TABELA 03 – TORQUE PARA PARAFUSOS ASTM A-325'],[],['DIÂMETRO','BITOLA (ROSCA)','TORQUE (N·m)','TORQUE (kgf·m)']]; TORQUE_TAB.forEach(a=>tta.push([a[0],a[1],a[2]+' a '+a[3],a[4]+' a '+a[5]]));
@@ -2337,7 +2677,7 @@ function renderRel(){
 function relRows(num){ return Object.entries(S.insp).filter(([it,v])=>(v.r||'')===num && byItem.get(+it)).map(([it,v])=>[byItem.get(+it),v]).sort((a,b)=>a[0].item-b[0].item); }
 function relAutoObs(rows){
   const o=[]; const man=rows.filter(([j])=>isMan(j)).length; if(man) o.push(`${man} junta(s) de chumbador com aperto manual (sem torquímetro).`);
-  const nok=rows.filter(([j,v])=>v.t==='Não OK'); if(nok.length) o.push('Torque NÃO OK: '+nok.map(([j])=>j.tagj).join('; ')+'.');
+  const nok=rows.filter(([j,v])=>isRep(v)); if(nok.length) o.push('Torque REPROVADO: '+nok.map(([j])=>j.tagj).join('; ')+'.');
   rows.forEach(([j,v])=>{ if(v.o) o.push(`${j.tagj}: ${v.o}`); });
   return o.join('\n');
 }
@@ -2439,7 +2779,7 @@ async function genFP69(num,opt){
     // instrumentos usados nesta página
     const tms=[...new Set(pg.map(([j,v])=>v.tm).filter(Boolean))];
     tms.slice(0,2).forEach((n,k)=>{ const t=tmBy(n), r=29+k;
-      x=setCell(x,'A'+r, t? `TORQUÍMETRO ${t.emp||'LOCMAIS'} – escala ${escTxt(t)}`:'TORQUÍMETRO');
+      x=setCell(x,'A'+r, t? `TORQUÍMETRO ${t.fab||'GEDORE'} – escala ${escTxt(t)}`:'TORQUÍMETRO');
       x=setCell(x,'C'+r,n); x=setCell(x,'E'+r,t?t.cert:''); x=setCell(x,'H'+r,t?dBR(t.cal):''); x=setCell(x,'K'+r,t?dBR(t.val):''); });
     let obs=opt.obs||''; if(tms.length>2) obs=(obs?obs+'\n':'')+'Outros instrumentos nesta página: '+tms.slice(2).map(n=>{const t=tmBy(n); return n+(t?` (escala ${escTxt(t)}, cert. ${t.cert}, cal. ${dBR(t.cal)}, venc. ${dBR(t.val)})`:'');}).join('; ');
     x=setCell(x,'A32','OBSERVAÇÕES / OBSERVATIONS:'+(obs?'\n'+obs:''));
@@ -2552,9 +2892,9 @@ function wsConnCard(){
       ${has3d?'':'<div class="full"><span class="pill pend">Sem vínculo no modelo 3D</span></div>'}
     </div>`;
   const tsp=isMan(j)? 'Aperto manual' : j.diam? torqueTxt(j).replace(/ \/ /g,'<br>')+' <span style="font-size:12px;font-weight:500">N·m</span>':'—';
-  const real=v&&isMan(j)? 'Manual OK' : v&&v.tq!=null&&v.tq!==''? v.tq+' <span style="font-size:12px;font-weight:500">N·m</span>' : v? 'OK':'—';
-  const okc = v ? (v.t==='Não OK'?'var(--bad)':'var(--ok)') : 'var(--line2)';
-  $('#tq-card').innerHTML=`<div class="tqcards"><div>${IC.gauge}<div><small>Torque especificado</small><b>${tsp}</b></div></div><div class="${v&&v.t!=='Não OK'?'ok':''}">${IC.check.replace('<svg',`<svg style="color:${okc}"`)}<div><small>Torque realizado</small><b style="color:${v?okc:'inherit'}">${real}</b></div></div></div>`;
+  const real=v&&isMan(j)? 'Manual OK' : v&&v.tq!=null&&v.tq!==''? v.tq+' <span style="font-size:12px;font-weight:500">N·m</span>' : v? 'Aprovado':'—';
+  const okc = v ? (isRep(v)?'var(--bad)':'var(--ok)') : 'var(--line2)';
+  $('#tq-card').innerHTML=`<div class="tqcards"><div>${IC.gauge}<div><small>Torque especificado</small><b>${tsp}</b></div></div><div class="${v&&!isRep(v)?'ok':''}">${IC.check.replace('<svg',`<svg style="color:${okc}"`)}<div><small>Torque realizado</small><b style="color:${v?okc:'inherit'}">${real}</b></div></div></div>`;
 }
 function wsBaixaCard(){
   const j=WS.cur?byItem.get(WS.cur):null; const el=$('#baixa-card');
@@ -2562,7 +2902,7 @@ function wsBaixaCard(){
   const v=S.insp[j.item];
   if(v){
     const t=v.tm?tmBy(v.tm):null;
-    el.innerHTML=`<div class="bigok">${IC.ring}<div><h4>Baixa registrada!</h4><p>${isMan(j)?'<b>Aperto manual</b> registrado':v.tq!=null&&v.tq!==''?`Torque de <b>${esc(v.tq)} N·m</b> registrado`:'Torque registrado'} em ${dBR(v.d)} por <b>${esc(v.i)}</b>${v.e?` · executante <b>${esc(v.e)}</b>`:''}${v.r?` · relatório ${esc(v.r)}`:''}.<br>${t?`Torquímetro ${esc(t.n)} · ${escTxt(t)} · cert. ${esc(t.cert)}`:(v.tm?'Torquímetro '+esc(v.tm):'')}${v.t==='Não OK'?'<br><b style="color:var(--bad)">Torque NÃO OK</b>':''}</p></div></div>
+    el.innerHTML=`<div class="bigok">${IC.ring}<div><h4>Baixa registrada!</h4><p>${isMan(j)?'<b>Aperto manual</b> registrado':v.tq!=null&&v.tq!==''?`Torque de <b>${esc(v.tq)} N·m</b> registrado`:'Torque registrado'} em ${dBR(v.d)} por <b>${esc(v.i)}</b>${v.e?` · executante <b>${esc(v.e)}</b>`:''}${v.r?` · relatório ${esc(v.r)}`:''}.<br>${t?`Torquímetro ${esc(t.n)} · ${escTxt(t)} · cert. ${esc(t.cert)}`:(v.tm?'Torquímetro '+esc(v.tm):'')}${isRep(v)?'<br><b style="color:var(--bad)">Torque REPROVADO</b>':'<br><b style="color:var(--ok)">Torque APROVADO</b>'}</p></div></div>
       <div class="bbtns"><button class="btn big" id="bx-undo">${IC.undo} Desfazer baixa</button><button class="btn primary big" id="bx-next">${IC.arrow} Próxima conexão</button></div>`;
     $('#bx-undo').onclick=()=>confirmBox('Desfazer baixa','Voltar esta conexão para <b>pendente</b>?',()=>{ delete S.insp[j.item]; save(); wsRefresh(); toast('Conexão voltou para pendente.'); });
     $('#bx-next').onclick=wsNext;
@@ -2578,7 +2918,7 @@ function wsBaixaCard(){
       <div class="row2"><label class="f" ${man?'style="display:none"':''}>Torquímetro<select id="bx-tm"><option value="">— selecione —</option>${S.tm.map(t=>{const si=tmSit(t,ref); return `<option value="${esc(t.n)}" ${si.k==='venc'?'disabled':''} ${t.n===lastTm&&si.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}-${t.emax}${si.k==='venc'?' (VENCIDO)':si.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label></div>
       ${man?'<div class="note" style="padding:8px 12px;background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.4)"><b>Chumbador – aperto manual.</b> Não usa torque de tabela nem torquímetro.</div>':''}
       <div class="row2" ${man?'style="display:none"':''}><label class="f">Torque aplicado (N·m)<input type="number" id="bx-tq" min="0" placeholder="${ds.length===1&&TQ.get(ds[0])?TQ.get(ds[0]).min+' a '+TQ.get(ds[0]).max:''}"></label>
-        <label class="f">Resultado<select id="bx-ok"><option>OK</option><option>Não OK</option></select></label></div>
+        <label class="f">Resultado<select id="bx-ok"><option>Aprovado</option><option>Reprovado</option></select></label></div>
       <div id="bx-msg"></div>
       <button class="btn okb big" id="bx-go">${IC.check.replace('<svg','<svg style="width:20px;height:20px;color:#fff"').replace('#0A162C','#16A34A')} Registrar baixa</button>
     </div>`;
@@ -2586,7 +2926,7 @@ function wsBaixaCard(){
   const msg=()=>{ const t=tmBy($('#bx-tm').value), q=$('#bx-tq').value, out=[];
     if(t){ const si=tmSit(t,$('#bx-data').value); if(si.k!=='ok') out.push(`Torquímetro ${esc(t.n)}: ${si.txt.toLowerCase()}.`);
       ds.forEach(d=>{const r=TQ.get(d); if(r&&(r.max>t.emax||r.min<t.emin)) out.push(`Torque do parafuso ${esc(d)} (${r.min}–${r.max} N·m) fora da escala deste torquímetro (${escTxt(t)}).`);}); }
-    if(q!==''&&ds.length===1&&TQ.get(ds[0])){ const r=TQ.get(ds[0]), ok=+q>=r.min&&+q<=r.max; $('#bx-ok').value=ok?'OK':'Não OK'; if(!ok) out.push(`Torque aplicado fora da faixa (${r.min} a ${r.max} N·m).`); }
+    if(q!==''&&ds.length===1&&TQ.get(ds[0])){ const r=TQ.get(ds[0]), ok=+q>=r.min&&+q<=r.max; $('#bx-ok').value=ok?'Aprovado':'Reprovado'; if(!ok) out.push(`Torque aplicado fora da faixa (${r.min} a ${r.max} N·m).`); }
     $('#bx-msg').innerHTML=out.length?`<div class="note warn" style="padding:8px 12px">${out.join('<br>')}</div>`:''; };
   $('#bx-tm').onchange=msg; $('#bx-tq').oninput=msg; $('#bx-data').onchange=()=>{ WS.lastTm=$('#bx-tm').value; wsBaixaCard(); }; msg();
   $('#bx-go').onclick=()=>{
@@ -2825,7 +3165,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
   if(!window.CLOUD) return;           // arquivo aberto sozinho no computador: funciona só local, como antes
   const CORE=['s','d','i','r','e','t','o','tm','tq'];
   const core=v=>JSON.stringify(CORE.map(k=>v&&v[k]!=null&&v[k]!==''?v[k]:null));
-  const pick=v=>{ const o={}; CORE.concat(['at','por','origem']).forEach(k=>{ if(v[k]!=null) o[k]=v[k]; }); return o; };
+  const pick=v=>{ const o={}; CORE.concat(['at','por','origem']).forEach(k=>{ if(v[k]!=null) o[k]=v[k]; }); if(o.t) o.t=normT(o.t); return o; };
   let CL=null, lastTm=null, pushing=false;
   const saveLocal=save;
   save = function(){ saveLocal(); pushDiff(); cloudLabel(); };
@@ -2888,7 +3228,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
       if(lastTm===null) setTimeout(()=>{ if(lastTm===null){ lastTm=JSON.stringify(S.tm); CLOUD.setTm(S.tm).catch(()=>{}); } },2500);
       cloudLabel(); refresh();
     },
-    onTm:l=>{ if(Array.isArray(l)&&l.length){ S.tm=l; lastTm=JSON.stringify(l); saveLocal(); updBadge(); } },
+    onTm:l=>{ if(Array.isArray(l)&&l.length){ S.tm=l; lastTm=JSON.stringify(l); const add=tmMergeBase(S.tm); saveLocal(); updBadge(); if(add){ lastTm=null; pushDiff(); } } },
     onStatus:e=>{ if(e) toast(e); cloudLabel(); }
   });
 })();
@@ -2897,7 +3237,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.24-1425'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-1455'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();

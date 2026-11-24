@@ -195,27 +195,360 @@ const TORQUE=[["½\"","½\"-13UNC",98,116,10,12],
  ["1⅜\"","1.3/8\"-6UNC",2335,2370,238,242],
  ["1½\"","1.1/2\"-6UNC",3040,3090,310,315]]
 ;
-const TM_BASE=[["A001.265","TORQUIMETRO (155-760Nm)",155,760,"10Nm","GEDORE","GEDORE D",365,"2026-06-18","2027-06-18","CALIBRADO","133/2026"],
- ["A001.263","TORQUIMETRO (155-760Nm)",155,760,"10Nm","GEDORE","GEDORE D",365,"2026-06-18","2027-06-18","CALIBRADO","132/2026"],
- ["A001346","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","136/2026"],
- ["A001274","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","DR",365,"2026-06-24","2027-06-24","CALIBRADO","137/2026"],
- ["A001203","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","DR",365,"2026-06-24","2027-06-24","CALIBRADO","138/2026"],
- ["A001291","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","139/2026"],
- ["A001033","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","DR",365,"2026-06-24","2027-06-24","CALIBRADO","140/2026"],
- ["A001177","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","141/2026"],
- ["A001223","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-06-24","2027-06-24","CALIBRADO","143/2026"],
- ["A001.111","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","161/2026"],
- ["A001.079","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","151/2026"],
- ["A001.224","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","160/2026"],
- ["A001.147","TORQUIMETRO (140-760Nm)",140,760,"NÃO CONSTA","GEDORE","D",365,"2026-07-21","2027-07-21","CALIBRADO","154/2026"]]
-;
+const TM_BASE=[
+[
+"A001.265",
+"TORQUIMETRO (155-760Nm)",
+155,
+760,
+"10Nm",
+"GEDORE",
+"GEDORE D",
+365,
+"2026-06-18",
+"2027-06-18",
+"CALIBRADO",
+"133/2026",
+"LOCMAIS"
+],
+[
+"A001.263",
+"TORQUIMETRO (155-760Nm)",
+155,
+760,
+"10Nm",
+"GEDORE",
+"GEDORE D",
+365,
+"2026-06-18",
+"2027-06-18",
+"CALIBRADO",
+"132/2026",
+"LOCMAIS"
+],
+[
+"A001346",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"136/2026",
+"LOCMAIS"
+],
+[
+"A001274",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"DR",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"137/2026",
+"LOCMAIS"
+],
+[
+"A001203",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"DR",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"138/2026",
+"LOCMAIS"
+],
+[
+"A001291",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"139/2026",
+"LOCMAIS"
+],
+[
+"A001033",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"DR",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"140/2026",
+"LOCMAIS"
+],
+[
+"A001177",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"141/2026",
+"LOCMAIS"
+],
+[
+"A001223",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-06-24",
+"2027-06-24",
+"CALIBRADO",
+"143/2026",
+"LOCMAIS"
+],
+[
+"A001.111",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"161/2026",
+"LOCMAIS"
+],
+[
+"A001.079",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"151/2026",
+"LOCMAIS"
+],
+[
+"A001.224",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"160/2026",
+"LOCMAIS"
+],
+[
+"A001.147",
+"TORQUIMETRO (140-760Nm)",
+140,
+760,
+"NÃO CONSTA",
+"GEDORE",
+"D",
+365,
+"2026-07-21",
+"2027-07-21",
+"CALIBRADO",
+"154/2026",
+"LOCMAIS"
+],
+[
+"A001.099",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2025-07-15",
+"2026-07-15",
+"CALIBRADO",
+"127/2025",
+"LOCMAIS"
+],
+[
+"A001.305",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"123/2026",
+"LOCMAIS"
+],
+[
+"7434",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"TYP E",
+365,
+"2025-12-08",
+"2026-12-08",
+"CALIBRADO",
+"20253221",
+"INGEL"
+],
+[
+"7433",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"TYP E",
+365,
+"2025-12-08",
+"2026-12-08",
+"CALIBRADO",
+"20253220",
+"INGEL"
+],
+[
+"A001.255",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-03-31",
+"2027-03-31",
+"CALIBRADO",
+"46/2026",
+"LOCMAIS"
+],
+[
+"A001.271",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"GEDORE E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"122/2026",
+"LOCMAIS"
+],
+[
+"A001.262",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"124/2026",
+"LOCMAIS"
+],
+[
+"A001.058",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"125/2026",
+"LOCMAIS"
+],
+[
+"A001.219",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-06-16",
+"2027-06-16",
+"CALIBRADO",
+"126/2026",
+"LOCMAIS"
+],
+[
+"A001.254",
+"TORQUIMETRO (750-2000Nm)",
+750,
+2000,
+"NÃO CONSTA",
+"GEDORE",
+"E",
+365,
+"2026-03-31",
+"2027-03-31",
+"CALIBRADO",
+"45/2026",
+"LOCMAIS"
+]
+];
 const J=BASE.map((r,i)=>{const o={item:i+1}; COLS.forEach((k,j)=>o[k]=r[j]); o.qtd=(o.qtd===''||o.qtd==null)?null:Number(o.qtd); o.ds=String(o.des).slice(-4); o.tagj=o.tagj||(o.peca+' / '+o.lig); o.q=(o.tagj+' '+o.peca+' '+o.lig+' '+o.fila+' '+o.eixo+' '+o.elev+' '+o.ds).toUpperCase(); return o;});
 const byItem=new Map(J.map(j=>[j.item,j]));
 // TAG da baixa primeiro; o TAG pesquisado vai para a frente
 function tagTxt(j){ let t=String(j.tagj).split(' / '); const w=(typeof F!=='undefined'?F.q:'').trim().toUpperCase().split(/\s+/).filter(x=>x.length>=3);
   if(w.length){ const k=t.findIndex(x=>w.some(q=>x.toUpperCase().includes(q))); if(k>0) t=[t[k],...t.slice(0,k),...t.slice(k+1)]; } return t.join(' / '); }
 const TQ=new Map(TORQUE.map(a=>[a[0],{min:a[2],max:a[3],kmin:a[4],kmax:a[5]}]));
-let TM=TM_BASE.map(a=>({n:a[0],emin:a[2],emax:a[3],cal:a[8],val:a[9],cert:a[11],emp:'LOCMAIS'}));
+let TM=TM_BASE.map(a=>({n:a[0],emin:a[2],emax:a[3],cal:a[8],val:a[9],cert:a[11],emp:a[12]||'LOCMAIS'}));
 let INSP={};          // item -> baixa (da nuvem)
 const P=JSON.parse(localStorage.getItem('torque_campo_prefs')||'{}'); // preferências do aparelho
 const saveP=()=>localStorage.setItem('torque_campo_prefs',JSON.stringify(P));
@@ -346,7 +679,7 @@ function renderJ(){
       <div>Ligação</div><div>${esc(j.tipo)}</div>${j.spec?`<div>Especif.</div><div>${esc(j.spec)}</div>`:''}${j.obs?`<div>Obs.</div><div>${esc(j.obs)}</div>`:''}</div>`;
   if(v){
     const t=TM.find(x=>x.n===v.tm);
-    $('#sheet').innerHTML=head+`<div class="done">${IC.ring}<h3>Baixa registrada</h3><p>${dBR(v.d)} · inspetor <b>${esc(v.i)}</b>${v.e?` · executante <b>${esc(v.e)}</b>`:''}<br>${man?'Aperto manual':v.tq!=null&&v.tq!==''?`Torque ${esc(v.tq)} N·m`:''}${t?` · torquímetro ${esc(t.n)}`:''}${v.r?` · relatório nº ${esc(v.r)}`:' · aguardando relatório'}${v.t==='Não OK'?'<br><b style="color:var(--bad)">Torque NÃO OK</b>':''}</p></div>
+    $('#sheet').innerHTML=head+`<div class="done">${IC.ring}<h3>Baixa registrada</h3><p>${dBR(v.d)} · inspetor <b>${esc(v.i)}</b>${v.e?` · executante <b>${esc(v.e)}</b>`:''}<br>${man?'Aperto manual':v.tq!=null&&v.tq!==''?`Torque ${esc(v.tq)} N·m`:''}${t?` · torquímetro ${esc(t.n)}`:''}${v.r?` · relatório nº ${esc(v.r)}`:' · aguardando relatório'}${(v.t==='Não OK'||v.t==='Reprovado')?'<br><b style="color:var(--bad)">Torque REPROVADO</b>':(v.t==='OK'||v.t==='Aprovado')?'<br><b style="color:var(--ok)">Torque APROVADO</b>':''}</p></div>
       <div class="btns"><button class="btn" id="undo">Desfazer</button><button class="btn primary" id="next">Próxima</button></div>`;
     $('#undo').onclick=async()=>{ if(!confirm('Desfazer a baixa desta junta?')) return; await CLOUD.delBaixa(j.item,'campo').catch(()=>{}); delete INSP[j.item]; toast('Baixa desfeita.'); renderJ(); renderList(); };
     $('#next').onclick=next; $('#sx').onclick=closeSheet; return;
@@ -359,18 +692,18 @@ function renderJ(){
     <div class="${man?'hide':''}">
       <label class="f"><span>Torquímetro</span><select id="bt"><option value="">— selecione —</option>${TM.map(t=>{const s=tmSit(t,d); return `<option value="${esc(t.n)}" ${s.k==='venc'?'disabled':''} ${t.n===P.tm&&s.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}–${t.emax} N·m${s.k==='venc'?' (vencido)':s.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label>
       <label class="f"><span>Torque aplicado (N·m)</span><input type="number" id="bq" inputmode="numeric" placeholder="${ds.length===1&&TQ.get(ds[0])?TQ.get(ds[0]).min+' a '+TQ.get(ds[0]).max:''}"></label>
-      <div class="f"><span>Resultado</span><div class="seg"><button id="rok" class="on okk">OK</button><button id="rnok">Não OK</button></div></div>
+      <div class="f"><span>Resultado</span><div class="seg"><button id="rok" class="on okk">Aprovado</button><button id="rnok">Reprovado</button></div></div>
     </div>
     <div id="bmsg"></div>
     <label class="f"><span>Observação (opcional)</span><textarea id="bo" rows="2"></textarea></label>
     <button class="btn ok" id="bgo">Registrar baixa</button>`;
   $('#sx').onclick=closeSheet;
-  let res='OK'; const setRes=r=>{ res=r; $('#rok').className=r==='OK'?'on okk':''; $('#rnok').className=r!=='OK'?'on nok':''; };
-  $('#rok').onclick=()=>setRes('OK'); $('#rnok').onclick=()=>setRes('Não OK');
+  let res='Aprovado'; const setRes=r=>{ res=r; $('#rok').className=r==='Aprovado'?'on okk':''; $('#rnok').className=r!=='Aprovado'?'on nok':''; };
+  $('#rok').onclick=()=>setRes('Aprovado'); $('#rnok').onclick=()=>setRes('Reprovado');
   const msg=()=>{ const out=[]; const t=TM.find(x=>x.n===$('#bt').value), q=$('#bq').value;
     if(t){ const s=tmSit(t,$('#bd').value); if(s.k!=='ok') out.push(`Torquímetro ${esc(t.n)}: ${s.txt.toLowerCase()} (validade ${dBR(t.val)}).`);
       ds.forEach(dd=>{const r=TQ.get(dd); if(r&&(r.max>t.emax||r.min<t.emin)) out.push(`Torque do parafuso ${esc(dd)} (${r.min}–${r.max}) fora da escala deste torquímetro.`);}); }
-    if(q!==''&&ds.length===1&&TQ.get(ds[0])){ const r=TQ.get(ds[0]), ok=+q>=r.min&&+q<=r.max; setRes(ok?'OK':'Não OK'); if(!ok) out.push(`Torque fora da faixa (${r.min} a ${r.max} N·m).`); }
+    if(q!==''&&ds.length===1&&TQ.get(ds[0])){ const r=TQ.get(ds[0]), ok=+q>=r.min&&+q<=r.max; setRes(ok?'Aprovado':'Reprovado'); if(!ok) out.push(`Torque fora da faixa (${r.min} a ${r.max} N·m).`); }
     $('#bmsg').innerHTML=out.length?`<div class="note warn">${out.join('<br>')}</div>`:''; };
   if(!man){ $('#bt').onchange=msg; $('#bq').oninput=msg; msg(); }
   $('#bgo').onclick=async()=>{
@@ -416,7 +749,7 @@ function openLote(){
   const vals=()=>{ const o={}; document.querySelectorAll('.ltq').forEach(i=>{ if(i.value!=='') o[i.dataset.d]=+i.value; }); return o; };
   const msg=()=>{ const out=[], t=TM.find(x=>x.n===($('#lt')||{}).value), v=vals();
     if(t){ const st=tmSit(t,$('#ld').value); if(st.k!=='ok') out.push(`Torquímetro ${esc(t.n)}: ${st.txt.toLowerCase()}.`); ds.forEach(x=>{const r=TQ.get(x); if(r&&(r.max>t.emax||r.min<t.emin)) out.push(`Parafuso ${esc(x)} (${r.min}–${r.max}) fora da escala deste torquímetro.`);}); }
-    ds.forEach(x=>{ const r=TQ.get(x); if(r&&v[x]!=null&&(v[x]<r.min||v[x]>r.max)) out.push(`${esc(x)}: ${v[x]} N·m fora da faixa – as juntas com esse parafuso ficam <b>Não OK</b>.`); });
+    ds.forEach(x=>{ const r=TQ.get(x); if(r&&v[x]!=null&&(v[x]<r.min||v[x]>r.max)) out.push(`${esc(x)}: ${v[x]} N·m fora da faixa – as juntas com esse parafuso ficam <b>Reprovadas</b>.`); });
     $('#lmsg').innerHTML=out.length?`<div class="note warn">${out.join('<br>')}</div>`:''; };
   if($('#lt')){ $('#lt').onchange=msg; document.querySelectorAll('.ltq').forEach(i=>i.oninput=msg); msg(); }
   $('#lgo2').onclick=async()=>{
@@ -433,12 +766,12 @@ function openLote(){
       if(isMan(j)) bx={s:'Inspecionado',d:dd,i:CLOUD.user.nome,r,e,t:'Aperto manual OK',o,at,tm:'',tq:null};
       else { const jd=diams(j); const okk=jd.every(x=>{const rr=TQ.get(x); return !rr||(v[x]>=rr.min&&v[x]<=rr.max);}); if(!okk) nok++;
         const tqv=jd.length?v[jd[0]]:null; const obs=[o, jd.length>1?'Torque por diâmetro: '+jd.map(x=>x+' = '+v[x]+' N·m').join('; '):''].filter(Boolean).join(' · ');
-        bx={s:'Inspecionado',d:dd,i:CLOUD.user.nome,r,e,t:okk?'OK':'Não OK',o:obs,at,tm,tq:tqv}; }
+        bx={s:'Inspecionado',d:dd,i:CLOUD.user.nome,r,e,t:okk?'Aprovado':'Reprovado',o:obs,at,tm,tq:tqv}; }
       INSP[j.item]=bx; CLOUD.setBaixa(j.item,bx,'campo-lote').catch(err=>toast('Erro ao salvar: '+(err.code||err.message)));
     }
     if(navigator.vibrate) navigator.vibrate([40,60,40]);
     SEL.clear(); selMode=false; closeSheet(); renderList(); updStatus();
-    toast(`${js.length} baixa(s) registrada(s)${nok?` · ${nok} Não OK`:''}${navigator.onLine?'':' – enviam quando tiver sinal'}.`);
+    toast(`${js.length} baixa(s) registrada(s)${nok?` · ${nok} reprovada(s)`:''}${navigator.onLine?'':' – enviam quando tiver sinal'}.`);
   };
 }
 function exeNames(){ const me=CLOUD.user&&CLOUD.user.nome; return [...new Set([me,...(P.users||[]),...(P.exes||[])].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')); }
@@ -479,14 +812,14 @@ let started=false;
 CLOUD.init({
   onUser:u=>{ if(!u){ started=false; renderLogin(); return; } if(!u.nome){ renderNome(); return; } if(!started){ started=true; renderMain(); } },
   onBaixas:map=>{ INSP={}; Object.entries(map).forEach(([k,v])=>INSP[+k]=v); if(started){ renderList(); if(cur) renderJ(); } updStatus(); },
-  onTm:l=>{ if(Array.isArray(l)&&l.length) TM=l.map(t=>({n:t.n,emin:t.emin,emax:t.emax,cal:t.cal,val:t.val,cert:t.cert,emp:t.emp||'LOCMAIS'})); },
+  onTm:l=>{ if(Array.isArray(l)&&l.length){ TM=l.map(t=>({n:t.n,emin:t.emin,emax:t.emax,cal:t.cal,val:t.val,cert:t.cert,emp:t.emp||'LOCMAIS'})); TM_BASE.forEach(a=>{ if(!TM.some(t=>t.n===a[0])) TM.push({n:a[0],emin:a[2],emax:a[3],cal:a[8],val:a[9],cert:a[11],emp:a[12]||'LOCMAIS'}); }); } },
   onStatus:e=>{ if(e) toast(e); updStatus(); }
 });
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw-campo.js').catch(()=>{});
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.24-1425'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-1455'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
