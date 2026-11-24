@@ -378,7 +378,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.23-2241'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.23-2245'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json(); if(j.v&&j.v!==V) show(j); }catch(e){} }
   function show(j){ if(document.getElementById('upd')) return; const b=document.createElement('button'); b.id='upd';
