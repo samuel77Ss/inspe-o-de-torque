@@ -747,7 +747,6 @@ window.PFX&&window.PFX.dim(true);</script>
       <label class="f">Data da baixa<select id="mn-data"></select></label>
       <label class="f">Inspetor<select id="mn-insp"></select></label>
     </div>
-    <label class="f">Executante<select id="mn-exe"></select></label>
     <div class="note" id="mn-sum"></div>
   </div>
   <div class="ft"><button class="btn" data-close>Cancelar</button><button class="btn primary" id="mn-go">Gerar relatório</button></div>
@@ -2648,11 +2647,10 @@ function openNovo(){
   const sr=semRel(); const uq=k=>[...new Set(sr.map(([i,v])=>v[k]).filter(Boolean))].sort();
   $('#mn-data').innerHTML='<option value="">Todas as datas</option>'+uq('d').map(d=>`<option value="${d}">${dBR(d)}</option>`).join('');
   $('#mn-insp').innerHTML='<option value="">Todos</option>'+uq('i').map(x=>`<option>${esc(x)}</option>`).join('');
-  $('#mn-exe').innerHTML='<option value="">Todos</option>'+uq('e').map(x=>`<option>${esc(x)}</option>`).join('');
   const upd=()=>{ const f=novoSel(); const b=f.reduce((a,[it])=>a+(byItem.get(+it).qtd||0),0); $('#mn-sum').innerHTML=`<b>${fmt(f.length)}</b> junta(s) · <b>${fmt(b)}</b> parafusos · <b>${Math.ceil(f.length/REL_PER)||0}</b> página(s)`; $('#mn-go').disabled=!f.length; };
-  ['#mn-data','#mn-insp','#mn-exe'].forEach(x=>$(x).onchange=upd); upd(); openM('#m-novo');
+  ['#mn-data','#mn-insp'].forEach(x=>$(x).onchange=upd); upd(); openM('#m-novo');
 }
-function novoSel(){ const d=$('#mn-data').value, i=$('#mn-insp').value, e=$('#mn-exe').value; return semRel().filter(([it,v])=>(!d||v.d===d)&&(!i||v.i===i)&&(!e||v.e===e)); }
+function novoSel(){ const d=$('#mn-data').value, i=$('#mn-insp').value; return semRel().filter(([it,v])=>(!d||v.d===d)&&(!i||v.i===i)); }
 async function proxNumero(){
   const mx=Math.max(0,...Object.values(S.insp).map(v=>/^\d+$/.test(v.r||'')?+v.r:0));
   if(window.CLOUD&&CLOUD.user&&CLOUD.nextRel) return await CLOUD.nextRel(mx);
@@ -3237,7 +3235,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.24-1507'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-1520'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
