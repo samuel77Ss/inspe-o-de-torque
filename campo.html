@@ -104,6 +104,29 @@ select:focus,input:focus,textarea:focus{border-color:var(--acc)}
 .menu .who{padding:10px 12px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:4px}
 .demo{background:var(--accbg);color:#D2B07A;font-size:12.5px;text-align:center;padding:6px 10px;border-bottom:1px solid rgba(245,179,66,.3)}
 .hide{display:none!important}
+.instbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;padding:13px;border-radius:14px;border:1px dashed rgba(201,164,110,.6);background:rgba(176,138,85,.08);color:#E2C99A;font-weight:650;font-size:15px}
+.instbtn svg{width:19px;height:19px}
+.inst-slot.top .instbtn{width:36px;height:36px;margin:0;padding:0;border-radius:50%;border-style:solid;font-size:0;gap:0;flex:none}
+.inst-slot.top .instbtn svg{width:17px;height:17px}
+.inst-slot.top{display:flex}
+.ttl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ttl b{white-space:nowrap}
+.inststeps{margin:4px 0 16px;padding-left:22px;display:grid;gap:10px;font-size:14.5px;line-height:1.45}
+.chip.selb{margin-left:auto;border-style:dashed}
+.it.selm{padding-left:10px}.it .cb{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line2);display:grid;place-items:center;flex:none;font-style:normal;font-weight:800;color:#17130C;transition:.15s}
+.it.chk{border-color:rgba(201,164,110,.65);background:linear-gradient(180deg,rgba(176,138,85,.16),rgba(176,138,85,.04)),var(--panel)}
+.it.chk .cb{background:var(--bronze);border-color:transparent;box-shadow:0 0 10px rgba(201,164,110,.5)}
+.it.dis{opacity:.45}
+#selbar{position:fixed;left:0;right:0;bottom:0;z-index:35;display:flex;align-items:center;gap:8px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(26,28,32,.97),rgba(14,15,18,.98));border-top:1px solid rgba(201,164,110,.45);box-shadow:0 -14px 40px rgba(0,0,0,.55);animation:sbIn .3s ease}
+@keyframes sbIn{from{transform:translateY(100%)}to{transform:none}}
+#selbar .sb-l{flex:1;min-width:0;white-space:nowrap;font-size:13px;color:var(--muted)}#selbar .sb-l b{color:#E2C99A;font-size:18px;margin-right:4px}#selbar small{display:block;font-size:11.5px}
+#selbar .btn{width:auto;padding:11px 12px;font-size:13.5px}
+.lotelist{max-height:160px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin-bottom:10px;background:rgba(255,255,255,.015)}
+.lotelist div{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13.5px;font-weight:600}.lotelist div:last-child{border:0}
+.lotelist small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.tqgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.tqgrid label{display:block;border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--panel)}
+.tqgrid b{color:#E2C99A}.tqgrid small{display:block;color:var(--muted);font-size:11.5px;margin:2px 0 6px}
 .bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .bgfx::before{content:"";position:absolute;inset:-50%;background:repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px),linear-gradient(115deg,transparent 0 46%,rgba(201,164,110,.05) 49%,transparent 52%),linear-gradient(65deg,transparent 0 46%,rgba(201,164,110,.04) 49%,transparent 52%);background-size:auto,140px 140px,140px 140px;animation:drift 60s linear infinite}
 .bgfx::after{content:"";position:absolute;inset:0;background:radial-gradient(500px 300px at 10% -5%,rgba(176,138,85,.14),transparent 65%),linear-gradient(100deg,transparent 30%,rgba(214,182,128,.06) 45%,transparent 60%);background-size:auto,250% 100%;animation:sweep 14s ease-in-out infinite}
@@ -210,7 +233,7 @@ const IC={
  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
  ring:'<svg viewBox="0 0 100 100" fill="none" stroke="currentColor"><circle cx="50" cy="50" r="44" stroke-width="7"/><path d="m31 51 13 13 26-28" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
-const F={des:P.fdes||'',elev:'',fila:'',eixo:'',q:'',st:P.fst||'pend'}; let page=1, cur=null, LIST=[];
+const F={des:P.fdes||'',elev:'',fila:'',eixo:'',q:'',st:P.fst||'pend'}; let page=1, cur=null, LIST=[], selMode=false; const SEL=new Set();
 
 // ---------------- telas ----------------
 const EMB=`<svg viewBox="0 0 64 64" class="lg-emb"><defs><linearGradient id="lgb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E9D3A6"/><stop offset=".5" stop-color="#B08A55"/><stop offset="1" stop-color="#6E5230"/></linearGradient></defs><path d="M32 3 57 17.5v29L32 61 7 46.5v-29z" fill="rgba(176,138,85,.07)" stroke="url(#lgb)" stroke-width="2.4" stroke-linejoin="round"/><circle cx="32" cy="32" r="23.5" fill="none" stroke="url(#lgb)" stroke-width="1" opacity=".45"/><circle cx="32" cy="32" r="14.5" fill="#0E0F12" stroke="url(#lgb)" stroke-width="2.2"/><circle cx="32" cy="32" r="11" fill="none" stroke="#C9A46E" stroke-width="1.1" stroke-dasharray="1.6 2.1" opacity=".55"/><path d="M25.6 32.4 30 36.8l8.6-9.4" fill="none" stroke="url(#lgb)" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -225,7 +248,7 @@ function renderLogin(err){
     <label class="f ${CLOUD.mode==='demo'?'hide':''}"><span>Senha</span><input type="password" id="lp" autocomplete="current-password"></label>
     ${err?`<div class="note bad">${esc(err)}</div>`:''}
     <button class="btn primary" id="lgo">Entrar</button>
-    ${CLOUD.mode==='firebase'?'<button class="btn lnk" id="lrs">Esqueci a senha</button>':''}`);
+    ${CLOUD.mode==='firebase'?'<button class="btn lnk" id="lrs">Esqueci a senha</button>':''}<div class="inst-slot">${instHTML()}</div>`);
   $('#lgo').onclick=async()=>{ const e=$('#le').value, p=$('#lp').value; $('#lgo').disabled=true; $('#lgo').textContent='Entrando…'; P.email=e.trim(); saveP();
     try{ await CLOUD.login(e,p); }catch(x){ renderLogin(errTxt(x)); } };
   $('#lp').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#lgo').click(); });
@@ -242,9 +265,9 @@ const natural=(a,b)=>String(a).localeCompare(String(b),'pt-BR',{numeric:true});
 function renderMain(){
   window.PFX&&window.PFX.dim(true);
   $('#app').innerHTML=`${CLOUD.mode==='demo'?'<div class="demo">Modo demonstração – baixas salvas só neste aparelho</div>':''}
-  <div class="top">${EMB.replace('class="lg-emb"','class="lg-emb sm"')}<div class="ttl"><b>Torque · Campo</b><span>CWA 12 · Pipe Rack Trecho 1</span></div>
-    <button class="sync" id="sync"><i class="dot" id="sdot"></i><span id="stxt">…</span></button></div>
-  <div class="menu" id="menu"><div class="who" id="who"></div><button id="m-hoje">Minhas baixas de hoje</button><button id="m-sair">Sair</button></div>
+  <div class="top">${EMB.replace('class="lg-emb"','class="lg-emb sm"')}<div class="ttl"><b>Torque</b><span>Campo · CWA 12</span></div>
+    <span class="inst-slot top">${instHTML()}</span><button class="sync" id="sync"><i class="dot" id="sdot"></i><span id="stxt">…</span></button></div>
+  <div class="menu" id="menu"><div class="who" id="who"></div>${isStandalone()?'':'<button onclick="doInstall()">Instalar app no celular</button>'}<button id="m-hoje">Minhas baixas de hoje</button><button id="m-sair">Sair</button></div>
   <div class="wrap">
     <div class="prog"><div class="bar"><i id="pbar"></i></div><div class="n" id="pn"></div></div>
     <div class="search">${IC.search}<input type="search" id="q" placeholder="Buscar TAG (ex.: 1157G)" value="${esc(F.q)}" autocomplete="off"></div>
@@ -252,14 +275,15 @@ function renderMain(){
       <select id="fdes"></select><select id="felev"></select><select id="ffila"></select><select id="feixo"></select>
     </div>
     <div class="chips" id="chips">
-      <button class="chip" data-st="pend">Pendentes</button><button class="chip" data-st="ok">Com baixa</button><button class="chip" data-st="">Todas</button>
+      <button class="chip" data-st="pend">Pendentes</button><button class="chip" data-st="ok">Com baixa</button><button class="chip" data-st="">Todas</button><button class="chip selb" id="bsel">☐ Selecionar</button>
     </div>
     <div class="list" id="list"></div>
   </div>`;
   fillFilters();
   $('#q').oninput=e=>{F.q=e.target.value; page=1; renderList();};
   ['des','elev','fila','eixo'].forEach(k=>$('#f'+k).onchange=e=>{ F[k]=e.target.value; if(k==='des'){F.elev=F.fila=F.eixo=''; P.fdes=F.des; saveP();} page=1; fillFilters(); renderList(); });
-  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ F.st=c.dataset.st; P.fst=F.st; saveP(); page=1; renderList(); });
+  document.querySelectorAll('.chip[data-st]').forEach(c=>c.onclick=()=>{ F.st=c.dataset.st; P.fst=F.st; saveP(); page=1; renderList(); });
+  $('#bsel').onclick=()=>{ selMode=!selMode; SEL.clear(); renderList(); };
   $('#sync').onclick=e=>{ e.stopPropagation(); $('#menu').classList.toggle('on'); };
   document.addEventListener('click',()=>$('#menu')&&$('#menu').classList.remove('on'));
   $('#who').innerHTML=`<b style="color:var(--ink)">${esc(CLOUD.user.nome)}</b><br>${esc(CLOUD.user.email)}`;
@@ -282,15 +306,17 @@ function filtered(){
 }
 function renderList(){
   if(!$('#list')) return;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.st===F.st));
+  document.querySelectorAll('.chip[data-st]').forEach(c=>c.classList.toggle('on',c.dataset.st===F.st));
+  $('#bsel').classList.toggle('on',selMode); $('#bsel').textContent=selMode?'✕ Cancelar seleção':'☐ Selecionar';
   LIST=filtered(); const show=LIST.slice(0,page*40);
   $('#list').innerHTML = show.length? show.map(j=>{ const v=INSP[j.item];
-    return `<button class="it" data-i="${j.item}"><i class="st ${v?'ok':isMan(j)?'man':''}"></i><div class="m"><div class="t">${esc(j.peca)} / ${esc(j.lig)}</div>
+    return `<button class="it${selMode?' selm':''}${SEL.has(j.item)?' chk':''}${selMode&&v?' dis':''}" data-i="${j.item}">${selMode?`<i class="cb">${SEL.has(j.item)?'✓':''}</i>`:''}<i class="st ${v?'ok':isMan(j)?'man':''}"></i><div class="m"><div class="t">${esc(j.peca)} / ${esc(j.lig)}</div>
       <div class="s">El. ${esc(j.elev)} · Fila ${esc(j.fila)} · Eixo ${esc(j.eixo)} · Des. ${esc(j.ds)}</div>
       <div class="s">${isMan(j)?'<span class="pill man">Aperto manual</span>':esc(pares(j).join(' + ')||'parafuso não definido')}${v?` · <span class="pill ok">Baixa ${dBR(v.d)}</span>`:''}</div></div>
       <div class="q"><b>${j.qtd??'—'}</b>paraf.</div></button>`; }).join('') + (LIST.length>show.length?`<button class="more" id="more">Mostrar mais (${fmt(LIST.length-show.length)} restantes)</button>`:'')
     : `<div class="empty">Nenhuma junta com esses filtros.</div>`;
-  document.querySelectorAll('.it').forEach(b=>b.onclick=()=>openJ(+b.dataset.i));
+  document.querySelectorAll('#list .it').forEach(b=>b.onclick=()=>{ const it=+b.dataset.i; if(!selMode) return openJ(it); if(INSP[it]) return toast('Essa junta já tem baixa.'); SEL.has(it)?SEL.delete(it):SEL.add(it); renderList(); });
+  renderSelBar();
   const m=$('#more'); if(m) m.onclick=()=>{page++; renderList();};
   const tot=J.length, ok=J.filter(j=>INSP[j.item]).length;
   $('#pbar').style.width=(ok/tot*100).toFixed(1)+'%'; $('#pn').innerHTML=`<b>${fmt(ok)}</b> / ${fmt(tot)} juntas`;
@@ -356,6 +382,61 @@ function renderJ(){
     toast(navigator.onLine?'Baixa registrada.':'Baixa salva no aparelho – envia quando tiver sinal.'); renderJ(); renderList(); updStatus();
   };
 }
+function renderSelBar(){
+  let b=$('#selbar'); if(!selMode){ if(b) b.remove(); return; }
+  if(!b){ b=document.createElement('div'); b.id='selbar'; document.body.appendChild(b); }
+  const pend=LIST.filter(j=>!INSP[j.item]), bolts=[...SEL].reduce((a,i)=>a+(byItem.get(i).qtd||0),0);
+  b.innerHTML=`<div class="sb-l"><b>${SEL.size}</b> junta(s)<small>${fmt(bolts)} parafusos</small></div>
+    <button class="btn sb-all" id="sball">${SEL.size&&pend.every(j=>SEL.has(j.item))?'Limpar':'Todas ('+fmt(pend.length)+')'}</button>
+    <button class="btn primary sb-go" id="sbgo" ${SEL.size?'':'disabled'}>Dar baixa</button>`;
+  $('#sball').onclick=()=>{ if(SEL.size&&pend.every(j=>SEL.has(j.item))) SEL.clear(); else { if(pend.length>200&&!confirm(`Selecionar ${pend.length} juntas?`)) return; pend.forEach(j=>SEL.add(j.item)); } renderList(); };
+  $('#sbgo').onclick=openLote;
+}
+function openLote(){
+  const js=[...SEL].map(i=>byItem.get(i)).filter(j=>j&&!INSP[j.item]); if(!js.length) return;
+  const man=js.filter(isMan), tq=js.filter(j=>!isMan(j)), ds=[...new Set(tq.flatMap(diams))].sort((a,b)=>(TQ.get(a)?.min||0)-(TQ.get(b)?.min||0));
+  const semD=tq.filter(j=>!diams(j).length).length, d=today();
+  $('#sheet').innerHTML=`<div class="grab"></div><div class="hd"><h2>Baixa em lote</h2><button class="x" id="sx">×</button></div>
+    <div class="big"><div><span>Juntas</span><b>${js.length}</b></div><div><span>Parafusos</span><b>${fmt(js.reduce((a,j)=>a+(j.qtd||0),0))}</b></div></div>
+    <div class="lotelist">${js.slice(0,60).map(j=>`<div>${esc(j.peca)} / ${esc(j.lig)}<small>El. ${esc(j.elev)} · ${esc(j.fila)} / ${esc(j.eixo)} · ${isMan(j)?'aperto manual':esc(pares(j).join(' + '))}</small></div>`).join('')}${js.length>60?`<div class="muted">… e mais ${js.length-60}</div>`:''}</div>
+    ${man.length?`<div class="note man"><b>${man.length} chumbador(es)</b> entram como aperto manual, sem torquímetro.</div>`:''}
+    ${semD?`<div class="note warn">${semD} junta(s) sem bitola definida: o resultado fica OK sem conferir a faixa.</div>`:''}
+    <div class="row2"><label class="f"><span>Data</span><input type="date" id="ld" value="${d}"></label><label class="f"><span>Nº relatório</span><input type="text" id="lr" value="${esc(P.r||'')}" placeholder="ex.: 001"></label></div>
+    <label class="f"><span>Executante (quem apertou)</span><input type="text" id="le2" list="dle2" value="${esc(P.e||'')}"></label><datalist id="dle2">${(P.exes||[]).map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+    ${tq.length?`<label class="f"><span>Torquímetro</span><select id="lt"><option value="">— selecione —</option>${TM.map(t=>{const st=tmSit(t,d); return `<option value="${esc(t.n)}" ${st.k==='venc'?'disabled':''} ${t.n===P.tm&&st.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}–${t.emax} N·m${st.k==='venc'?' (vencido)':st.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label>
+      <div class="f"><span>Torque aplicado (N·m) – por diâmetro</span><div class="tqgrid">${ds.map((x,k)=>{const r=TQ.get(x); return `<label><b>${esc(x)}</b><small>${r?r.min+' a '+r.max:''}</small><input type="number" inputmode="numeric" data-d="${esc(x)}" class="ltq" placeholder="${r?r.min:''}"></label>`;}).join('')}</div></div>`:''}
+    <div id="lmsg"></div>
+    <label class="f"><span>Observação (opcional, vale para todas)</span><textarea id="lo" rows="2"></textarea></label>
+    <button class="btn ok" id="lgo2">Registrar ${js.length} baixa(s)</button>`;
+  $('#sheet').classList.add('on'); $('#sbg').classList.add('on'); $('#sheet').scrollTop=0; $('#sx').onclick=closeSheet;
+  const vals=()=>{ const o={}; document.querySelectorAll('.ltq').forEach(i=>{ if(i.value!=='') o[i.dataset.d]=+i.value; }); return o; };
+  const msg=()=>{ const out=[], t=TM.find(x=>x.n===($('#lt')||{}).value), v=vals();
+    if(t){ const st=tmSit(t,$('#ld').value); if(st.k!=='ok') out.push(`Torquímetro ${esc(t.n)}: ${st.txt.toLowerCase()}.`); ds.forEach(x=>{const r=TQ.get(x); if(r&&(r.max>t.emax||r.min<t.emin)) out.push(`Parafuso ${esc(x)} (${r.min}–${r.max}) fora da escala deste torquímetro.`);}); }
+    ds.forEach(x=>{ const r=TQ.get(x); if(r&&v[x]!=null&&(v[x]<r.min||v[x]>r.max)) out.push(`${esc(x)}: ${v[x]} N·m fora da faixa – as juntas com esse parafuso ficam <b>Não OK</b>.`); });
+    $('#lmsg').innerHTML=out.length?`<div class="note warn">${out.join('<br>')}</div>`:''; };
+  if($('#lt')){ $('#lt').onchange=msg; document.querySelectorAll('.ltq').forEach(i=>i.oninput=msg); msg(); }
+  $('#lgo2').onclick=async()=>{
+    const dd=$('#ld').value, r=$('#lr').value.trim(), e=$('#le2').value.trim(), tm=tq.length?$('#lt').value:'', v=vals();
+    if(!dd) return toast('Informe a data.'); if(!e){ $('#le2').focus(); return toast('Informe o executante.'); }
+    if(tq.length){ if(!tm) return toast('Selecione o torquímetro.'); if(tmSit(TM.find(x=>x.n===tm),dd).k==='venc') return toast('Torquímetro vencido nesta data.');
+      const falta=ds.filter(x=>v[x]==null); if(falta.length) return toast('Informe o torque de '+falta.join(', ')+'.'); }
+    if(!confirm(`Registrar baixa em ${js.length} junta(s)?`)) return;
+    $('#lgo2').disabled=true; $('#lgo2').textContent='Registrando…';
+    P.d=dd; P.r=r; P.e=e; if(tm) P.tm=tm; P.exes=[...new Set([e,...(P.exes||[])])].slice(0,15); saveP();
+    const at=new Date().toISOString(), o=$('#lo').value.trim(); let nok=0;
+    for(const j of js){
+      let bx;
+      if(isMan(j)) bx={s:'Inspecionado',d:dd,i:CLOUD.user.nome,r,e,t:'Aperto manual OK',o,at,tm:'',tq:null};
+      else { const jd=diams(j); const okk=jd.every(x=>{const rr=TQ.get(x); return !rr||(v[x]>=rr.min&&v[x]<=rr.max);}); if(!okk) nok++;
+        const tqv=jd.length?v[jd[0]]:null; const obs=[o, jd.length>1?'Torque por diâmetro: '+jd.map(x=>x+' = '+v[x]+' N·m').join('; '):''].filter(Boolean).join(' · ');
+        bx={s:'Inspecionado',d:dd,i:CLOUD.user.nome,r,e,t:okk?'OK':'Não OK',o:obs,at,tm,tq:tqv}; }
+      INSP[j.item]=bx; CLOUD.setBaixa(j.item,bx,'campo-lote').catch(err=>toast('Erro ao salvar: '+(err.code||err.message)));
+    }
+    if(navigator.vibrate) navigator.vibrate([40,60,40]);
+    SEL.clear(); selMode=false; closeSheet(); renderList(); updStatus();
+    toast(`${js.length} baixa(s) registrada(s)${nok?` · ${nok} Não OK`:''}${navigator.onLine?'':' – enviam quando tiver sinal'}.`);
+  };
+}
 function next(){ const i=LIST.findIndex(j=>j.item===cur); const n=LIST.slice(i+1).find(j=>!INSP[j.item])||LIST.find(j=>!INSP[j.item]&&j.item!==cur); if(n) openJ(n.item); else { closeSheet(); toast('Não há mais juntas pendentes nesta lista.'); } }
 function openHoje(){
   const t=today(), mine=Object.entries(INSP).filter(([it,v])=>v.d===t&&(v.por===CLOUD.user.email||v.i===CLOUD.user.nome)).map(([it,v])=>[byItem.get(+it),v]).filter(x=>x[0]);
@@ -366,6 +447,26 @@ function openHoje(){
   $('#sheet').classList.add('on'); $('#sbg').classList.add('on');
 }
 
+
+// ===== Botão "Instalar app" =====
+let DEFER=null; const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const inApp=/FBAN|FBAV|Instagram|WhatsApp|Line\/|wv\)/i.test(navigator.userAgent);
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); DEFER=e; showInstall(); });
+addEventListener('appinstalled',()=>{ DEFER=null; document.querySelectorAll('.instbtn').forEach(b=>b.remove()); toast('App instalado! Abra pelo ícone da tela inicial.'); });
+function instHTML(){ return isStandalone()?'':`<button class="instbtn" onclick="doInstall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Instalar app</button>`; }
+function showInstall(){ document.querySelectorAll('.inst-slot').forEach(el=>el.innerHTML=instHTML()); }
+async function doInstall(){
+  if(DEFER){ DEFER.prompt(); const r=await DEFER.userChoice; DEFER=null; if(r.outcome!=='accepted') toast('Instalação cancelada.'); return; }
+  const passos = inApp ? `<li>Este link está aberto dentro de outro app (ex.: WhatsApp), que não instala.</li><li>Toque nos <b>⋮</b> ou em <b>…</b> e escolha <b>Abrir no navegador</b> (Chrome ou Safari).</li><li>Depois toque em <b>Instalar app</b> de novo.</li>`
+    : isIOS ? `<li>Abra este link no <b>Safari</b>.</li><li>Toque no botão <b>Compartilhar</b> <span style="font-size:18px">⎋</span> (quadrado com seta para cima).</li><li>Desça e toque em <b>Adicionar à Tela de Início</b> → <b>Adicionar</b>.</li>`
+    : `<li>Toque nos <b>⋮</b> do Chrome (canto superior direito).</li><li>Escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b> → <b>Instalar</b>.</li><li>Se não aparecer, espere a página carregar toda e tente de novo.</li>`;
+  $('#sheet').innerHTML=`<div class="grab"></div><div class="hd"><h2>Instalar o app</h2><button class="x" id="sx">×</button></div>
+    <div class="note">Instalado, o Torque Campo abre pelo ícone da tela inicial, em tela cheia, e funciona sem sinal.</div><ol class="inststeps">${passos}</ol>
+    <button class="btn primary" id="sxok">Entendi</button>`;
+  $('#sheet').classList.add('on'); $('#sbg').classList.add('on'); $('#sx').onclick=closeSheet; $('#sxok').onclick=closeSheet;
+}
+window.doInstall=doInstall;
 // ---------------- nuvem ----------------
 let started=false;
 CLOUD.init({
@@ -378,7 +479,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.23-2245'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-0639'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json(); if(j.v&&j.v!==V) show(j); }catch(e){} }
   function show(j){ if(document.getElementById('upd')) return; const b=document.createElement('button'); b.id='upd';
