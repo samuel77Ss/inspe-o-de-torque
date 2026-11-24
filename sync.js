@@ -76,6 +76,21 @@
     if(C.mode==='firebase') return Promise.all([ FB.deleteDoc(FB.doc(db,'baixas',String(item))), FB.addDoc(FB.collection(db,'historico'), log) ]);
     const o=dLoad(); delete o.baixas[String(item)]; o.log.push(log); dSave(o); setTimeout(demoEmit,0); return Promise.resolve();
   };
+  // nomes dos usuários cadastrados (para inspetor / executante)
+  C.listUsers = async function(){
+    if(C.mode==='firebase'){ const q=await FB.getDocs(FB.collection(db,'usuarios')); const out=[]; q.forEach(d=>{ const v=d.data(); if(v.nome) out.push(v.nome); }); return out; }
+    const o=dLoad(); return Object.values(o.users||{}).map(u=>u.nome).filter(Boolean);
+  };
+  // número sequencial de relatório (0001, 0002…) – contador único no banco
+  C.nextRel = async function(minimo){
+    const fmt=n=>String(n).padStart(4,'0');
+    if(C.mode==='firebase'){
+      const ref=FB.doc(db,'config','relatorios');
+      const n=await FB.runTransaction(db, async tx=>{ const s=await tx.get(ref); const u=Math.max(s.exists()?(s.data().ultimo||0):0, minimo||0)+1; tx.set(ref,{ultimo:u, upd:FB.serverTimestamp(), por:C.user?C.user.email:''}); return u; });
+      return fmt(n);
+    }
+    const o=dLoad(); o.relSeq=Math.max(o.relSeq||0, minimo||0)+1; dSave(o); return fmt(o.relSeq);
+  };
   C.setTm = function(lista){
     if(C.mode==='firebase') return FB.setDoc(FB.doc(db,'config','torquimetros'), { lista, upd:stamp(), por:C.user?C.user.email:'' });
     const o=dLoad(); o.tm=lista; dSave(o); return Promise.resolve();

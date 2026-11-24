@@ -476,6 +476,12 @@ tbody td{border-bottom-color:rgba(255,255,255,.045)}
 .lg-go{width:100%;justify-content:center;margin-top:4px}
 .lg-foot{position:absolute!important;bottom:18px;left:0;right:0;text-align:center;font-size:11.5px;color:#5F656D;letter-spacing:.6px}
 @media (max-width:900px){.lg{flex-direction:column;gap:26px}.lg-side{text-align:center}.lg-brand{align-items:center}.lg-feat,.lg-proj{display:none}.lg-name{font-size:34px;letter-spacing:7px}}
+.btn.danger{border-color:rgba(217,83,79,.45);color:#F0A19E}
+.btn.danger:hover{border-color:#D9534F;color:#fff;background:linear-gradient(180deg,#5A2321,#3A1716);box-shadow:0 0 0 1px rgba(217,83,79,.25)}
+.relauto{padding:9px 12px;border-radius:10px;border:1px dashed var(--line2);color:var(--acc2);font-size:13px;background:var(--accbg)}
+.f>span{display:block;margin-bottom:4px}
+.relnew{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.relnew .big{font-size:28px;font-weight:700;color:var(--acc2)}
 </style>
 </head>
 <body>
@@ -685,7 +691,8 @@ window.PFX&&window.PFX.dim(true);</script>
     <section class="view" id="v-relatorio">
       <div class="stack">
         <div class="note"><b>Relatório de Torqueamento de Parafusos de Estruturas – 447.QUA.FP-69.</b> O relatório sai no modelo Excel do cliente, com <b>20 juntas por página</b> (uma aba por página). Cada página traz os torquímetros usados naquelas juntas: nº, certificado, calibração e vencimento. Entram as juntas com status <b>Inspecionado</b> e com o nº do relatório preenchido na baixa.</div>
-        <div class="card"><h3>Inspeções por nº de relatório</h3><div id="r-list"></div></div>
+        <div class="card" id="r-new"></div>
+        <div class="card"><h3>Relatórios gerados</h3><div id="r-list"></div></div>
       </div>
     </section>
   </main>
@@ -698,11 +705,11 @@ window.PFX&&window.PFX.dim(true);</script>
     <div class="note" id="mi-sum"></div>
     <div class="row2">
       <label class="f">Data da inspeção<input type="date" id="mi-data"></label>
-      <label class="f">Nº do relatório<input type="text" id="mi-rel" placeholder="ex.: RI-ESTR-0001"></label>
+      <div class="f"><span>Nº do relatório</span><div class="relauto">Automático · gerado em Relatórios</div><input type="hidden" id="mi-rel" value=""></div>
     </div>
     <div class="row2">
-      <label class="f">Inspetor<input type="text" id="mi-insp" list="dl-insp" placeholder="Nome do inspetor"></label>
-      <label class="f">Executante (torque)<input type="text" id="mi-exe" list="dl-exe" placeholder="Quem apertou"></label>
+      <label class="f">Inspetor<select id="mi-insp"></select></label>
+      <label class="f">Executante<select id="mi-exe"></select></label>
     </div>
     <div class="row2">
       <label class="f">Torquímetro<select id="mi-tm"></select></label><div></div>
@@ -722,6 +729,19 @@ window.PFX&&window.PFX.dim(true);</script>
   <div class="hd"><h3 id="md-title">Junta</h3><button class="x" data-close>×</button></div>
   <div class="bd"><div class="kv" id="md-kv"></div></div>
   <div class="ft" id="md-ft"></div>
+</div>
+<div class="modal" id="m-novo">
+  <div class="hd"><h3>Novo relatório</h3><button class="x" data-close>×</button></div>
+  <div class="bd">
+    <div class="note">O sistema dá o <b>próximo número da sequência</b> às baixas escolhidas abaixo e gera o relatório FP-69.</div>
+    <div class="row2">
+      <label class="f">Data da baixa<select id="mn-data"></select></label>
+      <label class="f">Inspetor<select id="mn-insp"></select></label>
+    </div>
+    <label class="f">Executante<select id="mn-exe"></select></label>
+    <div class="note" id="mn-sum"></div>
+  </div>
+  <div class="ft"><button class="btn" data-close>Cancelar</button><button class="btn primary" id="mn-go">Gerar relatório</button></div>
 </div>
 <div class="modal" id="m-rel">
   <div class="hd"><h3>Gerar relatório FP-69</h3><button class="x" data-close>×</button></div>
@@ -2075,6 +2095,13 @@ function openM(id){ $('#bg').classList.add('on'); $(id).classList.add('on'); }
 function closeM(){ $('#bg').classList.remove('on'); document.querySelectorAll('.modal').forEach(m=>m.classList.remove('on')); }
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeM); $('#bg').onclick=closeM;
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeM(); });
+// ---- nomes de inspetores / executantes (usuários cadastrados + nomes já usados)
+window.USERS=window.USERS||[];
+function allNames(){ const me=(window.CLOUD&&CLOUD.user&&CLOUD.user.nome)||''; return [...new Set([me,...USERS,...Object.values(S.insp).flatMap(v=>[v.i,v.e])].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')); }
+function defName(cur){ return cur || (window.CLOUD&&CLOUD.user&&CLOUD.user.nome) || allNames()[0] || ''; }
+function nameOpts(cur){ const d=defName(cur), ns=allNames(); if(d&&!ns.includes(d)) ns.unshift(d); return (ns.length?'':'<option value="">— cadastre um usuário —</option>')+ns.map(n=>`<option ${n===d?'selected':''}>${esc(n)}</option>`).join('')+'<option value="__outro">Outro nome…</option>'; }
+function fillNames(sel,cur){ const el=$(sel); el.innerHTML=nameOpts(cur); el.onchange=()=>{ if(el.value==='__outro'){ const n=(prompt('Nome:')||'').trim(); if(n){ USERS.push(n); el.innerHTML=nameOpts(n); } else el.innerHTML=nameOpts(''); } }; }
+document.addEventListener('change',e=>{ if(e.target&&(e.target.id==='bx-insp'||e.target.id==='bx-exe')&&e.target.value==='__outro'){ const n=(prompt('Nome:')||'').trim(); if(n) USERS.push(n); e.target.innerHTML=nameOpts(n); } });
 function inspNames(){ return [...new Set(Object.values(S.insp).map(v=>v.i).filter(Boolean))].sort(); }
 function exeNames(){ return [...new Set(Object.values(S.insp).map(v=>v.e).filter(Boolean))].sort(); }
 function fillExeDL(){ $('#dl-exe').innerHTML = exeNames().map(n=>`<option value="${esc(n)}">`).join(''); }
@@ -2085,7 +2112,7 @@ function openInsp(items){
   $('#mi-title').textContent = pendingItems.length===1? 'Marcar junta como inspecionada':'Marcar juntas como inspecionadas';
   $('#mi-sum').innerHTML = `<b>${fmt(pendingItems.length)}</b> ligação(ões) · <b>${fmt(bolts)}</b> parafusos com qtd. definida${nd?` · ${nd} sem qtd. (conferir)`:''}`;
   $('#mi-data').value = $('#mi-data').value || today();
-  $('#dl-insp').innerHTML = inspNames().map(n=>`<option value="${esc(n)}">`).join(''); fillExeDL();
+  fillNames('#mi-insp', $('#mi-insp').value||WS.lastInsp); fillNames('#mi-exe', $('#mi-exe').value||WS.lastExe);
   $('#mi-obs').value=''; $('#mi-torque').value='OK'; $('#mi-tq').value='';
   const ref=$('#mi-data').value, keep=$('#mi-tm').value;
   $('#mi-tm').innerHTML='<option value="">— selecione —</option>'+S.tm.map(t=>{ const si=tmSit(t,ref); return `<option value="${esc(t.n)}" ${si.k==='venc'?'disabled':''}>${esc(t.n)} · ${escTxt(t)} · val. ${dBR(t.val)}${si.k==='venc'?' (VENCIDO)':si.k==='aviso'?' ⚠ '+si.txt.toLowerCase():''}</option>`; }).join('');
@@ -2105,7 +2132,7 @@ $('#mi-ok').onclick=()=>{
   const tmn=$('#mi-tm').value; if(!tmn && !allMan){ $('#mi-tm').focus(); return toast('Selecione o torquímetro usado.'); }
   if(tmn){ const tmo=tmBy(tmn); if(tmSit(tmo,d).k==='venc') return toast('Este torquímetro estava vencido na data da inspeção.'); }
   const tq=$('#mi-tq').value;
-  pendingItems.forEach(it=>{ const m=isMan(byItem.get(it)); S.insp[it]={s:'Inspecionado',d,i,r,e:$('#mi-exe').value.trim(),t:m?'Aperto manual OK':$('#mi-torque').value,o:$('#mi-obs').value.trim(),at,tm:m?'':tmn,tq:m?null:(tq?Number(tq):null)}; });
+  WS.lastInsp=i; WS.lastExe=$('#mi-exe').value; pendingItems.forEach(it=>{ const m=isMan(byItem.get(it)); S.insp[it]={s:'Inspecionado',d,i,r,e:$('#mi-exe').value.trim(),t:m?'Aperto manual OK':$('#mi-torque').value,o:$('#mi-obs').value.trim(),at,tm:m?'':tmn,tq:m?null:(tq?Number(tq):null)}; });
   save(); closeM(); toast(`${fmt(pendingItems.length)} junta(s) marcada(s) como inspecionada(s).`); pendingItems.forEach(x=>sel.delete(x)); renderTable();
 };
 $('#b-insp').onclick=()=>openInsp([...sel]);
@@ -2258,10 +2285,42 @@ function relGroups(){
   const m=new Map(); Object.entries(S.insp).forEach(([it,v])=>{ const k=v.r||''; if(!m.has(k)) m.set(k,{k,items:[],b:0,dates:new Set(),insp:new Set(),exe:new Set(),tms:new Set()}); const g=m.get(k); const j=byItem.get(+it); if(!j) return; g.items.push(+it); g.b+=j.qtd||0; if(v.d) g.dates.add(v.d); if(v.i) g.insp.add(v.i); if(v.e) g.exe.add(v.e); if(v.tm) g.tms.add(v.tm); });
   return [...m.values()].sort((a,b)=>(a.k===''?1:0)-(b.k===''?1:0) || a.k.localeCompare(b.k,'pt-BR',{numeric:true}));
 }
+function semRel(){ return Object.entries(S.insp).filter(([it,v])=>!(v.r||'') && byItem.get(+it)); }
+function renderRelNew(){
+  const sr=semRel(), b=sr.reduce((a,[it])=>a+(byItem.get(+it).qtd||0),0), ds=[...new Set(sr.map(([i,v])=>v.d).filter(Boolean))].sort();
+  $('#r-new').innerHTML=`<h3>Baixas aguardando relatório</h3><div class="relnew"><div><div class="big">${fmt(sr.length)}</div><div class="muted" style="font-size:12.5px">junta(s) · ${fmt(b)} parafusos${ds.length?` · ${ds.length>1?dBR(ds[0])+' a '+dBR(ds[ds.length-1]):dBR(ds[0])}`:''}</div></div>
+    <div style="flex:1"></div>${sr.length?`<button class="btn danger" data-del="">Apagar</button><button class="btn primary big" id="r-novo">Gerar novo relatório</button>`:'<span class="muted">Nenhuma baixa pendente de relatório.</span>'}</div>`;
+  const bt=$('#r-novo'); if(bt) bt.onclick=openNovo;
+}
+function openNovo(){
+  const sr=semRel(); const uq=k=>[...new Set(sr.map(([i,v])=>v[k]).filter(Boolean))].sort();
+  $('#mn-data').innerHTML='<option value="">Todas as datas</option>'+uq('d').map(d=>`<option value="${d}">${dBR(d)}</option>`).join('');
+  $('#mn-insp').innerHTML='<option value="">Todos</option>'+uq('i').map(x=>`<option>${esc(x)}</option>`).join('');
+  $('#mn-exe').innerHTML='<option value="">Todos</option>'+uq('e').map(x=>`<option>${esc(x)}</option>`).join('');
+  const upd=()=>{ const f=novoSel(); const b=f.reduce((a,[it])=>a+(byItem.get(+it).qtd||0),0); $('#mn-sum').innerHTML=`<b>${fmt(f.length)}</b> junta(s) · <b>${fmt(b)}</b> parafusos · <b>${Math.ceil(f.length/REL_PER)||0}</b> página(s)`; $('#mn-go').disabled=!f.length; };
+  ['#mn-data','#mn-insp','#mn-exe'].forEach(x=>$(x).onchange=upd); upd(); openM('#m-novo');
+}
+function novoSel(){ const d=$('#mn-data').value, i=$('#mn-insp').value, e=$('#mn-exe').value; return semRel().filter(([it,v])=>(!d||v.d===d)&&(!i||v.i===i)&&(!e||v.e===e)); }
+async function proxNumero(){
+  const mx=Math.max(0,...Object.values(S.insp).map(v=>/^\d+$/.test(v.r||'')?+v.r:0));
+  if(window.CLOUD&&CLOUD.user&&CLOUD.nextRel) return await CLOUD.nextRel(mx);
+  S.relSeq=Math.max(S.relSeq||0,mx)+1; return String(S.relSeq).padStart(4,'0');
+}
 function renderRel(){
-  const arr=relGroups();
-  $('#r-list').innerHTML = arr.length? `<table><thead><tr><th class="nosort">Nº relatório</th><th class="nosort c">Ligações</th><th class="nosort c">Parafusos</th><th class="nosort c">Páginas</th><th class="nosort">Data(s)</th><th class="nosort">Inspetor(es)</th><th class="nosort">Executante(s)</th><th class="nosort">Torquímetro(s) – nº · escala · certificado</th><th class="nosort"></th></tr></thead><tbody>${arr.map(g=>`<tr><td class="tag">${g.k?esc(g.k):'<span class="muted">(sem nº de relatório)</span>'}</td><td class="c">${fmt(g.items.length)}</td><td class="c">${fmt(g.b)}</td><td class="c">${Math.ceil(g.items.length/REL_PER)}</td><td>${[...g.dates].sort().map(dBR).join(', ')}</td><td>${esc([...g.insp].join(', '))}</td><td>${g.exe.size?esc([...g.exe].join(', ')):'<span class="pill pend">não informado</span>'}</td><td>${[...g.tms].map(n=>{const t=tmBy(n); return esc(n)+(t?' · '+escTxt(t)+' · cert. '+esc(t.cert):'');}).join('<br>')}</td><td>${g.k?`<button class="btn primary" data-rel="${esc(g.k)}">Gerar relatório</button>`:'<span class="muted" style="font-size:12px">informe o nº na baixa</span>'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma inspeção lançada ainda.</div>';
+  renderRelNew();
+  const arr=relGroups().filter(g=>g.k);
+  $('#r-list').innerHTML = arr.length? `<table><thead><tr><th class="nosort">Nº relatório</th><th class="nosort c">Ligações</th><th class="nosort c">Parafusos</th><th class="nosort c">Páginas</th><th class="nosort">Data(s)</th><th class="nosort">Inspetor(es)</th><th class="nosort">Executante(s)</th><th class="nosort">Torquímetro(s) – nº · escala · certificado</th><th class="nosort"></th></tr></thead><tbody>${arr.map(g=>`<tr><td class="tag">${g.k?esc(g.k):'<span class="muted">(sem nº de relatório)</span>'}</td><td class="c">${fmt(g.items.length)}</td><td class="c">${fmt(g.b)}</td><td class="c">${Math.ceil(g.items.length/REL_PER)}</td><td>${[...g.dates].sort().map(dBR).join(', ')}</td><td>${esc([...g.insp].join(', '))}</td><td>${g.exe.size?esc([...g.exe].join(', ')):'<span class="pill pend">não informado</span>'}</td><td>${[...g.tms].map(n=>{const t=tmBy(n); return esc(n)+(t?' · '+escTxt(t)+' · cert. '+esc(t.cert):'');}).join('<br>')}</td><td>${g.k?`<div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn danger" data-del="${esc(g.k)}" title="Apagar este relatório e desfazer as baixas dele">Apagar</button><button class="btn" data-ren="${esc(g.k)}" title="Trocar o nº deste relatório">Renomear</button><button class="btn primary" data-rel="${esc(g.k)}">Gerar relatório</button></div>`:'<div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn danger" data-del="">Apagar</button><button class="btn primary" data-ren="">Definir nº do relatório</button></div>'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhum relatório gerado ainda.</div>';
   document.querySelectorAll('[data-rel]').forEach(b=>b.onclick=()=>openRel(b.dataset.rel));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const k=b.dataset.del, nome=k||'(sem nº de relatório)';
+    const its=Object.entries(S.insp).filter(([it,v])=>(v.r||'')===k).map(([it])=>it); if(!its.length) return;
+    const bolts=its.reduce((a,it)=>a+((byItem.get(+it)||{}).qtd||0),0);
+    if(!confirm(`APAGAR o relatório ${nome}?\n\nIsso desfaz ${its.length} baixa(s) (${bolts} parafusos): as juntas voltam para PENDENTE, no escritório e no celular.\nO histórico guarda quem apagou e quando.\n\nDeseja continuar?`)) return;
+    const conf=prompt(`Segunda confirmação.\n\nPara apagar de vez, digite ${k?'o nº do relatório ('+k+')':'APAGAR'}:`); if(conf==null) return;
+    if(conf.trim().toUpperCase()!==(k||'APAGAR').toUpperCase()) return toast('Texto não confere. Nada foi apagado.');
+    its.forEach(it=>delete S.insp[it]); save(); renderRel(); updBadge&&updBadge(); toast(`Relatório ${nome} apagado: ${its.length} baixa(s) desfeita(s).`); });
+  document.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{ const old=b.dataset.ren;
+    const n=prompt(old?`Novo nº para o relatório "${old}":`:'Nº do relatório para as baixas sem número:', old||''); if(n==null) return; const nv=n.trim(); if(!nv) return toast('Informe o número.');
+    let c=0; Object.values(S.insp).forEach(v=>{ if((v.r||'')===old){ v.r=nv; c++; } }); save(); renderRel(); toast(`${c} baixa(s) agora no relatório ${nv}.`); });
 }
 function relRows(num){ return Object.entries(S.insp).filter(([it,v])=>(v.r||'')===num && byItem.get(+it)).map(([it,v])=>[byItem.get(+it),v]).sort((a,b)=>a[0].item-b[0].item); }
 function relAutoObs(rows){
@@ -2280,6 +2339,10 @@ function openRel(num){
     (semE?`<br><span class="pill pend">${semE} sem executante</span>`:'')+(semTq?` <span class="pill pend">${semTq} sem torque final</span>`:'');
   openM('#m-rel');
 }
+$('#mn-go').onclick=async()=>{ const f=novoSel(); if(!f.length) return; $('#mn-go').disabled=true; $('#mn-go').textContent='Gerando nº…';
+  try{ const n=await proxNumero(); f.forEach(([it,v])=>{ v.r=n; }); save(); closeM(); renderRel(); toast(`Relatório nº ${n} criado com ${f.length} junta(s).`); openRel(n); }
+  catch(e){ console.error(e); toast('Não foi possível gerar o número: '+(e.code||e.message)+(String(e.code||'').includes('permission')?' (somente administrador gera relatório)':'')); }
+  finally{ $('#mn-go').disabled=false; $('#mn-go').textContent='Gerar relatório'; } };
 $('#mr-go').onclick=async()=>{ S.cfg=S.cfg||{}; S.cfg.proc=$('#mr-proc').value.trim(); save();
   const num=$('#mr-num').value; try{ $('#mr-go').disabled=true; await genFP69(num,{data:$('#mr-data').value,proc:S.cfg.proc,obs:$('#mr-obs').value.trim()}); closeM(); toast('Relatório gerado.'); }
   catch(e){ console.error(e); toast('Erro ao gerar o relatório: '+e.message); } finally{ $('#mr-go').disabled=false; } };
@@ -2487,9 +2550,9 @@ function wsBaixaCard(){
   const ds=isMan(j)?[]:diams(j), man=isMan(j);
   el.innerHTML=`<div class="chd">${IC.check.replace('<svg','<svg style="color:var(--acc2)"')} Dar baixa nesta conexão</div>
     <div class="bform">
-      <div class="row2"><label class="f">Data<input type="date" id="bx-data" value="${ref}"></label><label class="f">Nº relatório<input type="text" id="bx-rel" value="${esc(lastR)}" placeholder="ex.: RI-ESTR-0001"></label></div>
-      <div class="row2"><label class="f">Inspetor<input type="text" id="bx-insp" list="dl-insp" value="${esc(lastI)}" placeholder="Nome"></label>
-        <label class="f">Executante<input type="text" id="bx-exe" list="dl-exe" value="${esc(lastE)}" placeholder="Quem apertou"></label></div>
+      <div class="row2"><label class="f">Data<input type="date" id="bx-data" value="${ref}"></label><div class="f"><span>Nº do relatório</span><div class="relauto">Automático · gerado em Relatórios</div><input type="hidden" id="bx-rel" value=""></div></div>
+      <div class="row2"><label class="f">Inspetor<select id="bx-insp">${nameOpts(lastI)}</select></label>
+        <label class="f">Executante<select id="bx-exe">${nameOpts(lastE)}</select></label></div>
       <div class="row2"><label class="f" ${man?'style="display:none"':''}>Torquímetro<select id="bx-tm"><option value="">— selecione —</option>${S.tm.map(t=>{const si=tmSit(t,ref); return `<option value="${esc(t.n)}" ${si.k==='venc'?'disabled':''} ${t.n===lastTm&&si.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}-${t.emax}${si.k==='venc'?' (VENCIDO)':si.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label></div>
       ${man?'<div class="note" style="padding:8px 12px;background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.4)"><b>Chumbador – aperto manual.</b> Não usa torque de tabela nem torquímetro.</div>':''}
       <div class="row2" ${man?'style="display:none"':''}><label class="f">Torque aplicado (N·m)<input type="number" id="bx-tq" min="0" placeholder="${ds.length===1&&TQ.get(ds[0])?TQ.get(ds[0]).min+' a '+TQ.get(ds[0]).max:''}"></label>
@@ -2773,7 +2836,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
   // reset só local na nuvem não faz sentido: esconde
   const rs=$('#reset'); if(rs){ rs.textContent='Apagar todas as baixas (nuvem)'; rs.onclick=()=>toast('Na versão com nuvem, as baixas só podem ser desfeitas junta a junta (fica registrado no histórico).'); }
   CLOUD.init({
-    onUser:u=>{ if(!u){ CL=null; showLogin(); return; } if(!u.nome){ askName(); return; } if(ov.style.display!=='none') hideLogin(); userBox(); cloudLabel(); },
+    onUser:u=>{ if(!u){ CL=null; showLogin(); return; } if(!u.nome){ askName(); return; } if(ov.style.display!=='none') hideLogin(); userBox(); cloudLabel(); CLOUD.listUsers&&CLOUD.listUsers().then(l=>{ window.USERS=l; }).catch(()=>{}); },
     onBaixas:(map)=>{
       const first=!CL; const remote={}; Object.entries(map).forEach(([k,v])=>remote[k]=v);
       if(first){ // primeira conexão: o que só existe neste computador sobe para a nuvem
@@ -2795,7 +2858,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.24-0639'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-0756'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json(); if(j.v&&j.v!==V) show(j); }catch(e){} }
   function show(j){ if(document.getElementById('upd')) return; const b=document.createElement('button'); b.id='upd';

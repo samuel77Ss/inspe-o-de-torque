@@ -264,6 +264,7 @@ const uniq=a=>[...new Set(a)].filter(x=>x!=='' && x!=null);
 const natural=(a,b)=>String(a).localeCompare(String(b),'pt-BR',{numeric:true});
 function renderMain(){
   window.PFX&&window.PFX.dim(true);
+  CLOUD.listUsers&&CLOUD.listUsers().then(l=>{ if(l&&l.length){ P.users=l; saveP(); } }).catch(()=>{});
   $('#app').innerHTML=`${CLOUD.mode==='demo'?'<div class="demo">Modo demonstração – baixas salvas só neste aparelho</div>':''}
   <div class="top">${EMB.replace('class="lg-emb"','class="lg-emb sm"')}<div class="ttl"><b>Torque</b><span>Campo · CWA 12</span></div>
     <span class="inst-slot top">${instHTML()}</span><button class="sync" id="sync"><i class="dot" id="sdot"></i><span id="stxt">…</span></button></div>
@@ -342,7 +343,7 @@ function renderJ(){
       <div>Ligação</div><div>${esc(j.tipo)}</div>${j.spec?`<div>Especif.</div><div>${esc(j.spec)}</div>`:''}${j.obs?`<div>Obs.</div><div>${esc(j.obs)}</div>`:''}</div>`;
   if(v){
     const t=TM.find(x=>x.n===v.tm);
-    $('#sheet').innerHTML=head+`<div class="done">${IC.ring}<h3>Baixa registrada</h3><p>${dBR(v.d)} · inspetor <b>${esc(v.i)}</b>${v.e?` · executante <b>${esc(v.e)}</b>`:''}<br>${man?'Aperto manual':v.tq!=null&&v.tq!==''?`Torque ${esc(v.tq)} N·m`:''}${t?` · torquímetro ${esc(t.n)}`:''}${v.r?` · rel. ${esc(v.r)}`:''}${v.t==='Não OK'?'<br><b style="color:var(--bad)">Torque NÃO OK</b>':''}</p></div>
+    $('#sheet').innerHTML=head+`<div class="done">${IC.ring}<h3>Baixa registrada</h3><p>${dBR(v.d)} · inspetor <b>${esc(v.i)}</b>${v.e?` · executante <b>${esc(v.e)}</b>`:''}<br>${man?'Aperto manual':v.tq!=null&&v.tq!==''?`Torque ${esc(v.tq)} N·m`:''}${t?` · torquímetro ${esc(t.n)}`:''}${v.r?` · relatório nº ${esc(v.r)}`:' · aguardando relatório'}${v.t==='Não OK'?'<br><b style="color:var(--bad)">Torque NÃO OK</b>':''}</p></div>
       <div class="btns"><button class="btn" id="undo">Desfazer</button><button class="btn primary" id="next">Próxima</button></div>`;
     $('#undo').onclick=async()=>{ if(!confirm('Desfazer a baixa desta junta?')) return; await CLOUD.delBaixa(j.item,'campo').catch(()=>{}); delete INSP[j.item]; toast('Baixa desfeita.'); renderJ(); renderList(); };
     $('#next').onclick=next; $('#sx').onclick=closeSheet; return;
@@ -350,8 +351,8 @@ function renderJ(){
   const d=P.d===today()?P.d:today();
   $('#sheet').innerHTML=head+`
     ${man?'<div class="note man"><b>Chumbador – aperto manual.</b> Sem torquímetro e sem torque de tabela.</div>':''}
-    <div class="row2"><label class="f"><span>Data</span><input type="date" id="bd" value="${d}"></label><label class="f"><span>Nº relatório</span><input type="text" id="br" value="${esc(P.r||'')}" placeholder="ex.: 001"></label></div>
-    <label class="f"><span>Executante (quem apertou)</span><input type="text" id="be" list="dle" value="${esc(P.e||'')}"></label><datalist id="dle">${(P.exes||[]).map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+    <label class="f"><span>Data</span><input type="date" id="bd" value="${d}"></label>
+    <label class="f"><span>Executante</span><select id="be">${exeOpts()}</select></label>
     <div class="${man?'hide':''}">
       <label class="f"><span>Torquímetro</span><select id="bt"><option value="">— selecione —</option>${TM.map(t=>{const s=tmSit(t,d); return `<option value="${esc(t.n)}" ${s.k==='venc'?'disabled':''} ${t.n===P.tm&&s.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}–${t.emax} N·m${s.k==='venc'?' (vencido)':s.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label>
       <label class="f"><span>Torque aplicado (N·m)</span><input type="number" id="bq" inputmode="numeric" placeholder="${ds.length===1&&TQ.get(ds[0])?TQ.get(ds[0]).min+' a '+TQ.get(ds[0]).max:''}"></label>
@@ -370,13 +371,13 @@ function renderJ(){
     $('#bmsg').innerHTML=out.length?`<div class="note warn">${out.join('<br>')}</div>`:''; };
   if(!man){ $('#bt').onchange=msg; $('#bq').oninput=msg; msg(); }
   $('#bgo').onclick=async()=>{
-    const dd=$('#bd').value, r=$('#br').value.trim(), e=$('#be').value.trim(), tm=man?'':$('#bt').value, q=man?'':$('#bq').value;
+    const dd=$('#bd').value, r='', e=$('#be').value==='__outro'?'':$('#be').value.trim(), tm=man?'':$('#bt').value, q=man?'':$('#bq').value;
     if(!dd) return toast('Informe a data.');
     if(!e){ $('#be').focus(); return toast('Informe o executante.'); }
     if(!man){ if(!tm){ $('#bt').focus(); return toast('Selecione o torquímetro.'); } if(tmSit(TM.find(x=>x.n===tm),dd).k==='venc') return toast('Torquímetro vencido nesta data.');
       if(q===''){ $('#bq').focus(); return toast('Informe o torque aplicado.'); } }
     const v={s:'Inspecionado',d:dd,i:CLOUD.user.nome,r,e,t:man?'Aperto manual OK':res,o:$('#bo').value.trim(),at:new Date().toISOString(),tm,tq:man?null:Number(q)};
-    P.d=dd; P.r=r; P.e=e; if(tm) P.tm=tm; P.exes=[...new Set([e,...(P.exes||[])])].slice(0,15); saveP();
+    P.d=dd; P.e=e; if(tm) P.tm=tm; P.exes=[...new Set([e,...(P.exes||[])])].slice(0,15); saveP();
     INSP[j.item]=v; CLOUD.setBaixa(j.item,v,'campo').catch(err=>toast('Erro ao salvar: '+(err.code||err.message)));
     if(navigator.vibrate) navigator.vibrate(40);
     toast(navigator.onLine?'Baixa registrada.':'Baixa salva no aparelho – envia quando tiver sinal.'); renderJ(); renderList(); updStatus();
@@ -401,8 +402,8 @@ function openLote(){
     <div class="lotelist">${js.slice(0,60).map(j=>`<div>${esc(j.peca)} / ${esc(j.lig)}<small>El. ${esc(j.elev)} · ${esc(j.fila)} / ${esc(j.eixo)} · ${isMan(j)?'aperto manual':esc(pares(j).join(' + '))}</small></div>`).join('')}${js.length>60?`<div class="muted">… e mais ${js.length-60}</div>`:''}</div>
     ${man.length?`<div class="note man"><b>${man.length} chumbador(es)</b> entram como aperto manual, sem torquímetro.</div>`:''}
     ${semD?`<div class="note warn">${semD} junta(s) sem bitola definida: o resultado fica OK sem conferir a faixa.</div>`:''}
-    <div class="row2"><label class="f"><span>Data</span><input type="date" id="ld" value="${d}"></label><label class="f"><span>Nº relatório</span><input type="text" id="lr" value="${esc(P.r||'')}" placeholder="ex.: 001"></label></div>
-    <label class="f"><span>Executante (quem apertou)</span><input type="text" id="le2" list="dle2" value="${esc(P.e||'')}"></label><datalist id="dle2">${(P.exes||[]).map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+    <label class="f"><span>Data</span><input type="date" id="ld" value="${d}"></label>
+    <label class="f"><span>Executante</span><select id="le2">${exeOpts()}</select></label>
     ${tq.length?`<label class="f"><span>Torquímetro</span><select id="lt"><option value="">— selecione —</option>${TM.map(t=>{const st=tmSit(t,d); return `<option value="${esc(t.n)}" ${st.k==='venc'?'disabled':''} ${t.n===P.tm&&st.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}–${t.emax} N·m${st.k==='venc'?' (vencido)':st.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label>
       <div class="f"><span>Torque aplicado (N·m) – por diâmetro</span><div class="tqgrid">${ds.map((x,k)=>{const r=TQ.get(x); return `<label><b>${esc(x)}</b><small>${r?r.min+' a '+r.max:''}</small><input type="number" inputmode="numeric" data-d="${esc(x)}" class="ltq" placeholder="${r?r.min:''}"></label>`;}).join('')}</div></div>`:''}
     <div id="lmsg"></div>
@@ -416,13 +417,13 @@ function openLote(){
     $('#lmsg').innerHTML=out.length?`<div class="note warn">${out.join('<br>')}</div>`:''; };
   if($('#lt')){ $('#lt').onchange=msg; document.querySelectorAll('.ltq').forEach(i=>i.oninput=msg); msg(); }
   $('#lgo2').onclick=async()=>{
-    const dd=$('#ld').value, r=$('#lr').value.trim(), e=$('#le2').value.trim(), tm=tq.length?$('#lt').value:'', v=vals();
+    const dd=$('#ld').value, r='', e=$('#le2').value==='__outro'?'':$('#le2').value.trim(), tm=tq.length?$('#lt').value:'', v=vals();
     if(!dd) return toast('Informe a data.'); if(!e){ $('#le2').focus(); return toast('Informe o executante.'); }
     if(tq.length){ if(!tm) return toast('Selecione o torquímetro.'); if(tmSit(TM.find(x=>x.n===tm),dd).k==='venc') return toast('Torquímetro vencido nesta data.');
       const falta=ds.filter(x=>v[x]==null); if(falta.length) return toast('Informe o torque de '+falta.join(', ')+'.'); }
     if(!confirm(`Registrar baixa em ${js.length} junta(s)?`)) return;
     $('#lgo2').disabled=true; $('#lgo2').textContent='Registrando…';
-    P.d=dd; P.r=r; P.e=e; if(tm) P.tm=tm; P.exes=[...new Set([e,...(P.exes||[])])].slice(0,15); saveP();
+    P.d=dd; P.e=e; if(tm) P.tm=tm; P.exes=[...new Set([e,...(P.exes||[])])].slice(0,15); saveP();
     const at=new Date().toISOString(), o=$('#lo').value.trim(); let nok=0;
     for(const j of js){
       let bx;
@@ -437,6 +438,9 @@ function openLote(){
     toast(`${js.length} baixa(s) registrada(s)${nok?` · ${nok} Não OK`:''}${navigator.onLine?'':' – enviam quando tiver sinal'}.`);
   };
 }
+function exeNames(){ const me=CLOUD.user&&CLOUD.user.nome; return [...new Set([me,...(P.users||[]),...(P.exes||[])].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')); }
+function exeOpts(){ const d=P.e||(CLOUD.user&&CLOUD.user.nome)||'', ns=exeNames(); if(d&&!ns.includes(d)) ns.unshift(d); return ns.map(n=>`<option ${n===d?'selected':''}>${esc(n)}</option>`).join('')+'<option value="__outro">Outro nome…</option>'; }
+document.addEventListener('change',e=>{ const t=e.target; if(t&&(t.id==='be'||t.id==='le2')&&t.value==='__outro'){ const n=(prompt('Nome do executante:')||'').trim(); if(n){ P.exes=[...new Set([n,...(P.exes||[])])].slice(0,15); saveP(); P.e=n; } t.innerHTML=exeOpts(); } });
 function next(){ const i=LIST.findIndex(j=>j.item===cur); const n=LIST.slice(i+1).find(j=>!INSP[j.item])||LIST.find(j=>!INSP[j.item]&&j.item!==cur); if(n) openJ(n.item); else { closeSheet(); toast('Não há mais juntas pendentes nesta lista.'); } }
 function openHoje(){
   const t=today(), mine=Object.entries(INSP).filter(([it,v])=>v.d===t&&(v.por===CLOUD.user.email||v.i===CLOUD.user.nome)).map(([it,v])=>[byItem.get(+it),v]).filter(x=>x[0]);
@@ -479,7 +483,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.24-0639'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-0756'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json(); if(j.v&&j.v!==V) show(j); }catch(e){} }
   function show(j){ if(document.getElementById('upd')) return; const b=document.createElement('button'); b.id='upd';
