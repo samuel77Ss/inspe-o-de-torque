@@ -486,16 +486,27 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.24-1014'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.24-1020'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
-  async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json(); if(j.v&&j.v!==V) show(j); }catch(e){} }
+  const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
+  async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
+      if(!j.v||j.v<=V) { sessionStorage.removeItem('upd_try'); return; }          // só avisa se a publicada for MAIS NOVA
+      const t=tried(); if(t.v===j.v && t.n>=2) return;                             // já tentou 2x nesta sessão: não insiste
+      show(j); }catch(e){} }
+  async function doUpdate(j){
+    const t=tried(); sessionStorage.setItem('upd_try',JSON.stringify({v:j.v,n:(t.v===j.v?t.n:0)+1}));
+    try{ const v=document.querySelector('.view.on'); if(v) sessionStorage.setItem('upd_view',v.id.replace('v-','')); }catch(e){}
+    try{ if(window.caches){ const ks=await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); }
+      if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){ const rs=await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r=>r.update().catch(()=>{}))); } }catch(e){}
+    // renova a cópia guardada pelo navegador no PRÓPRIO endereço do app (sem isso, ao abrir de novo vinha a versão antiga)
+    try{ await fetch(location.pathname,{cache:'reload'}); await fetch(location.href,{cache:'reload'}); }catch(e){}
+    location.reload(); }
   function show(j){ if(document.getElementById('upd')) return; const b=document.createElement('button'); b.id='upd';
     b.innerHTML=IC+'<span>Nova versão disponível'+(j.nota?'<small>'+String(j.nota).replace(/[<>&]/g,'')+'</small>':'')+'</span><b>Atualizar</b>';
-    b.onclick=async()=>{ b.classList.add('go'); b.querySelector('b').textContent='Atualizando…';
-      try{ if(window.caches){ const ks=await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); }
-        if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){ const rs=await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r=>r.update().catch(()=>{}))); } }catch(e){}
-      location.replace(location.pathname+'?v='+encodeURIComponent(j.v)); };
+    b.onclick=()=>{ b.classList.add('go'); b.querySelector('b').textContent='Atualizando…'; doUpdate(j); };
     document.body.appendChild(b); }
+  // depois de atualizar, volta para a mesma tela
+  addEventListener('load',()=>{ const v=sessionStorage.getItem('upd_view'); if(v){ sessionStorage.removeItem('upd_view'); setTimeout(()=>{ try{ const n=document.querySelector('.nav[data-v="'+v+'"]'); if(n) n.click(); }catch(e){} },1500); } if(tried().v===V) sessionStorage.removeItem('upd_try'); });
   setTimeout(chk,3000); setInterval(chk,120000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) chk(); }); addEventListener('online',chk);
 })();
 </script>
