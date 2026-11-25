@@ -3643,6 +3643,13 @@ function m3Build(meta,P,L,BP,BD){
       const q=new T.Vector2((e.clientX+dx-r.left)/r.width*2-1,-(e.clientY+dy-r.top)/r.height*2+1); ray.setFromCamera(q,camera); hit=ray.intersectObjects(chunks,false)[0]; if(hit) break; } }
     if(!hit){ return; }
     const e2=hit.object.userData.triEl[hit.faceIndex]; m3PickInst(elInst[e2]); });
+  // depuração: testa clique numa peça pelo nome (centro na tela)
+  window.__clickTest=(nm,k=0)=>{ const ids=[...M3.instEls.keys()].filter(a=>M3.instName[a]===nm); const a=ids[k]; if(a==null) return 'sem peça';
+    const box=new T.Box3(); (M3.instEls.get(a)||[]).forEach(e=>{ const m=M3.chunks[M3.elChunk[e]], p=m.geometry.attributes.position.array, lv=M3.elLocalV[e]; for(let v=0;v<M3.vs[e];v++) box.expandByPoint(new T.Vector3(p[(lv+v)*3],p[(lv+v)*3+1],p[(lv+v)*3+2])); });
+    m3View(box,false); controls.update(); renderer.render(scene,camera);
+    const c=box.getCenter(new T.Vector3()).project(camera); ray.setFromCamera(new T.Vector2(c.x,c.y),camera); const h=ray.intersectObjects(chunks,false)[0];
+    const got=h?M3.instName[elInst[h.object.userData.triEl[h.faceIndex]]]:null; if(h) m3PickInst(elInst[h.object.userData.triEl[h.faceIndex]]);
+    return {inst:a, rep:M3.REP.get(a), rows:(instRows.get(M3.REP.get(a))||[]).length, hit:got, card:document.querySelector('#conn-card').innerText.slice(0,80)}; };
   $('#vload').classList.add('off'); $('#vhint').style.display='flex';
   // tools
   $('#t-all').onclick=()=>m3View(all,true);
@@ -3672,8 +3679,8 @@ function m3Recolor(){
   const dim=M3.highlighted.size>0;
   for(let e=0;e<M3.el.length;e++){
     const a=M3.elInst[e], ra=M3.REP.get(a); let c=TYPECOL[M3.el[e][1]]||[0.5,0.55,0.65];
-    if(WS.statusColors){ const k=BX.instSt.get(ra); c= k==='ok'? [0.16,0.78,0.40] : k==='pc'? [0.62,0.80,0.36] : k==='pd'? [0.86,0.52,0.22] : [c[0]*0.92,c[1]*0.92,c[2]*0.94]; if(M3.highlighted.has(a)) c=[0.82,0.60,0.31]; m3SetElColor(e,c); continue; }
-    if(M3.highlighted.has(a)) c=[0.82,0.60,0.31];
+    if(WS.statusColors){ const k=BX.instSt.get(ra); c= k==='ok'? [0.16,0.78,0.40] : k==='pc'? [0.62,0.80,0.36] : k==='pd'? [0.86,0.52,0.22] : [c[0]*0.92,c[1]*0.92,c[2]*0.94]; if(M3.highlighted.has(a)) c=(M3.picked&&M3.picked.has(a))?[1.0,0.84,0.28]:[0.82,0.60,0.31]; m3SetElColor(e,c); continue; }
+    if(M3.highlighted.has(a)) c=(M3.picked&&M3.picked.has(a))?[1.0,0.84,0.28]:[0.82,0.60,0.31];
     else if(dim) c=[c[0]*0.40,c[1]*0.40,c[2]*0.42];
     m3SetElColor(e,c);
   }
@@ -3742,25 +3749,33 @@ function m3Highlight(insts, boltIdx){
   $('#vhint').style.display = (insts.length||n)?'none':'flex';
 }
 function m3HighlightRow(item,fly){
+  if(!m3HighlightRow._fromPick) M3.picked=null;
   const j=byItem.get(item); const insts=[...(rowInst.get(item)||[])]; const bolts=[];
   (j.conns||[]).forEach(ci=>{ const c=M3.meta.conns[ci]; if(c) bolts.push(...c[0]); });
   m3Highlight(insts,bolts);
   if(fly&&M3.selBox) m3View(M3.selBox,true,true);
 }
+function m3InstBox(set){ const T=M3.T, box=new T.Box3(), v3=new T.Vector3();
+  set.forEach(a=>(M3.instEls.get(a)||[]).forEach(e=>{ const m=M3.chunks[M3.elChunk[e]], p=m.geometry.attributes.position.array, lv=M3.elLocalV[e]; for(let v=0;v<M3.vs[e];v++) box.expandByPoint(v3.set(p[(lv+v)*3],p[(lv+v)*3+1],p[(lv+v)*3+2])); }));
+  return box; }
 function m3PickInst(a){
-  a=M3.REP.get(a)??a;
-  // peça sem juntas próprias (ex.: a 2ª peça de mesma marca): usa as juntas da mesma marca, para qualquer peça ser clicável
-  if(!(instRows.get(a)||[]).length){ const nm=M3.instName[a]; const its2=J.filter(j=>String(j.tagj).split(' / ').some(t=>t.trim().startsWith(nm))).map(j=>j.item);
-    instRows.set(a,its2); if(its2.length) toast(`Peça ${nm}: mostrando as juntas da marca ${nm}.`); else toast(`Peça ${nm}: nenhuma junta cadastrada para esta peça.`); }
+  a=M3.REP.get(a)??a; const nm=M3.instName[a], tw=M3.TW.get(a)||[a], pbox=m3InstBox(tw), pc=pbox.getCenter(new M3.T.Vector3());
+  let own=(instRows.get(a)||[]).length>0;
+  // peça sem juntas próprias (ex.: outra peça com o mesmo TAG): usa as juntas da mesma marca, para qualquer peça ser clicável
+  if(!own){ const its2=J.filter(j=>String(j.tagj).split(' / ').some(t=>t.trim().startsWith(nm))).map(j=>j.item); instRows.set(a,its2); }
   WS.inst=a; WS.page=0; $('#wq').value=''; $('#wdes').value=''; $('#wst').value=''; const its=(instRows.get(a)||[]);
-  m3Highlight([a],[]);
   wsFilter();
-  const first=WS.list.find(j=>!S.insp[j.item])||WS.list[0];
-  if(first){ WS.cur=first.item; wsRenderList(); wsConnCard(); wsBaixaCard();
-    // peça clicada: mostra os parafusos de todas as juntas dela
-    const bs=[]; its.forEach(it=>{ const j=byItem.get(it); (j&&j.conns||[]).forEach(ci=>{ const c=M3.meta.conns[ci]; if(c) bs.push(...c[0]); }); });
-    m3Highlight([a,...(rowInst.get(first.item)||[])],bs); }
-  else { WS.cur=null; wsRenderList(); wsConnCard(); wsBaixaCard(); M3.highlighted=new Set(M3.TW.get(a)||[a]); m3Recolor(); }
+  // junta mais próxima da peça clicada (não a primeira da lista)
+  const dist=j=>{ const c=M3.rowCent.get(j.item); return c? pbox.distanceToPoint(new M3.T.Vector3(c[0],c[1],c[2])) : 1e9; };
+  const ord=[...WS.list].sort((x,y)=>dist(x)-dist(y)); const first=ord.find(j=>!S.insp[j.item]&&dist(j)<0.6)||ord[0];
+  if(first){ WS.cur=first.item; wsRenderList(); wsConnCard(); wsBaixaCard(); }
+  else { WS.cur=null; wsRenderList(); wsConnCard(); wsBaixaCard(); }
+  // parafusos das juntas que encostam nesta peça
+  const bs=[]; its.forEach(it=>{ const j=byItem.get(it); (j&&j.conns||[]).forEach(ci=>{ const c=M3.meta.conns[ci]; if(c) c[0].forEach(bi=>{ const v=new M3.T.Vector3(M3.bolts[bi*3],M3.bolts[bi*3+1],M3.bolts[bi*3+2]); if(pbox.distanceToPoint(v)<0.35) bs.push(bi); }); }); });
+  M3.picked=new Set(tw); m3Highlight(first?[a,...(rowInst.get(first.item)||[])]:[a],bs);
+  // moldura de linhas em volta da peça clicada
+  const bx=pbox.clone().expandByScalar(0.05); M3.boxHelper.box.copy(bx); M3.boxHelper.visible=true; M3.boxHelper2.box.copy(bx.clone().expandByScalar(0.05)); M3.boxHelper2.visible=true; M3.selBox=bx.clone().expandByScalar(0.8);
+  toast(own? `Peça ${nm} selecionada · ${its.length} junta(s)` : its.length? `Peça ${nm} selecionada · sem junta própria: mostrando as ${its.length} junta(s) da marca ${nm}` : `Peça ${nm} selecionada · nenhuma junta cadastrada`);
 }
 
 // ---------- start ----------
@@ -3848,7 +3863,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.25-1520'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.25-1536'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
