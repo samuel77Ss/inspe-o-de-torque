@@ -3637,7 +3637,10 @@ function m3Build(meta,P,L,BP,BD){
     const r=cv.getBoundingClientRect(); const p=new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
     ray.setFromCamera(p,camera);
     if(WS.statusColors && M3.mk.count){ const mh=ray.intersectObject(M3.mk,false)[0]; if(mh && M3.mkItems[mh.instanceId]!=null){ const it=M3.mkItems[mh.instanceId]; WS.inst=null; wsFilter(); const idx=WS.list.findIndex(j=>j.item===it); if(idx<0){ $('#wq').value=''; $('#wdes').value=''; $('#wst').value=''; wsFilter(); } WS.page=Math.max(0,Math.floor(WS.list.findIndex(j=>j.item===it)/WS.per)); wsSelect(it,false); return; } }
-    const hit=ray.intersectObjects(chunks,false)[0];
+    let hit=ray.intersectObjects(chunks,false)[0];
+    // clique perto de uma peça fina: tenta em volta do ponto (até 8 px) para não perder o clique
+    if(!hit){ for(const [dx,dy] of [[4,0],[-4,0],[0,4],[0,-4],[8,0],[-8,0],[0,8],[0,-8],[6,6],[-6,6],[6,-6],[-6,-6]]){
+      const q=new T.Vector2((e.clientX+dx-r.left)/r.width*2-1,-(e.clientY+dy-r.top)/r.height*2+1); ray.setFromCamera(q,camera); hit=ray.intersectObjects(chunks,false)[0]; if(hit) break; } }
     if(!hit){ return; }
     const e2=hit.object.userData.triEl[hit.faceIndex]; m3PickInst(elInst[e2]); });
   $('#vload').classList.add('off'); $('#vhint').style.display='flex';
@@ -3745,7 +3748,11 @@ function m3HighlightRow(item,fly){
   if(fly&&M3.selBox) m3View(M3.selBox,true,true);
 }
 function m3PickInst(a){
-  a=M3.REP.get(a)??a; WS.inst=a; WS.page=0; $('#wq').value=''; $('#wdes').value=''; $('#wst').value=''; const its=(instRows.get(a)||[]);
+  a=M3.REP.get(a)??a;
+  // peça sem juntas próprias (ex.: a 2ª peça de mesma marca): usa as juntas da mesma marca, para qualquer peça ser clicável
+  if(!(instRows.get(a)||[]).length){ const nm=M3.instName[a]; const its2=J.filter(j=>String(j.tagj).split(' / ').some(t=>t.trim().startsWith(nm))).map(j=>j.item);
+    instRows.set(a,its2); if(its2.length) toast(`Peça ${nm}: mostrando as juntas da marca ${nm}.`); else toast(`Peça ${nm}: nenhuma junta cadastrada para esta peça.`); }
+  WS.inst=a; WS.page=0; $('#wq').value=''; $('#wdes').value=''; $('#wst').value=''; const its=(instRows.get(a)||[]);
   m3Highlight([a],[]);
   wsFilter();
   const first=WS.list.find(j=>!S.insp[j.item])||WS.list[0];
@@ -3753,7 +3760,7 @@ function m3PickInst(a){
     // peça clicada: mostra os parafusos de todas as juntas dela
     const bs=[]; its.forEach(it=>{ const j=byItem.get(it); (j&&j.conns||[]).forEach(ci=>{ const c=M3.meta.conns[ci]; if(c) bs.push(...c[0]); }); });
     m3Highlight([a,...(rowInst.get(first.item)||[])],bs); }
-  else { WS.cur=null; wsRenderList(); wsConnCard(); wsBaixaCard(); }
+  else { WS.cur=null; wsRenderList(); wsConnCard(); wsBaixaCard(); M3.highlighted=new Set(M3.TW.get(a)||[a]); m3Recolor(); }
 }
 
 // ---------- start ----------
@@ -3841,7 +3848,7 @@ $('#saved').textContent = Object.keys(S.insp).length? 'Dados carregados deste co
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.25-1459'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.25-1520'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
