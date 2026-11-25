@@ -819,7 +819,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.25-0842'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.25-0916'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
@@ -854,5 +854,94 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 @media (max-width:700px){#upd{left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));justify-content:space-between}}
 </style>
 
+<style>.bgfx::before,.bgfx::after,.bgfx i,.lg::before,.lg::after{display:none!important}body{background:transparent!important}html{background:#09090a}.lg>*:not(.bgmir){position:relative;z-index:1}.bgfx .bgcv{position:absolute;inset:0;display:block}[data-theme=light] .bgfx{opacity:.18}</style>
+<script>// ---- fundo animado: preto + linhas douradas (estilo industrial premium)
+(function(){
+  const host=document.querySelector('.bgfx'); if(!host) return;
+  const cv=document.createElement('canvas'); cv.className='bgcv'; host.appendChild(cv);
+  const ctx=cv.getContext('2d'); const st=document.createElement('canvas'), sx=st.getContext('2d');
+  const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W=0,H=0,DPR=1,mob=false,T0=performance.now(),last=0,dust=[],run=true;
+  const ANG=-0.62, CA=Math.cos(ANG), SA=Math.sin(ANG); // inclinação das faixas (~35°)
+  const G=(a)=>`rgba(214,170,96,${a})`, G2=(a)=>`rgba(255,214,140,${a})`;
+  // faixas diagonais (posição ao longo da largura, comprimento, velocidade do brilho)
+  const streaks=[{u:.06,len:.55,v:.11,w:1.6,ph:0},{u:.16,len:.35,v:.07,w:1,ph:.4},{u:.70,len:.6,v:.09,w:1.4,ph:.2},{u:.83,len:.45,v:.13,w:1.1,ph:.7},{u:.93,len:.5,v:.06,w:1.8,ph:.5},{u:.40,len:.3,v:.05,w:.8,ph:.9}];
+  function resize(){
+    DPR=Math.min(window.devicePixelRatio||1,1.5); W=innerWidth; H=innerHeight; mob=W<760;
+    for(const c of [cv,st]){ c.width=Math.round(W*DPR); c.height=Math.round(H*DPR); }
+    cv.style.width=W+'px'; cv.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0); sx.setTransform(DPR,0,0,DPR,0,0);
+    drawStatic();
+    const n=mob?22:46; dust=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,r:.4+Math.random()*1.6,s:.08+Math.random()*.25,a:.15+Math.random()*.45,p:Math.random()*6.28}));
+    if(RM) frame(performance.now(),true);
+  }
+  // camada fixa: fundo, painéis angulares e chanfros
+  function drawStatic(){
+    const g=sx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#0d0d0f'); g.addColorStop(.5,'#09090a'); g.addColorStop(1,'#0c0b0a');
+    sx.fillStyle=g; sx.fillRect(0,0,W,H);
+    const poly=(pts,fill,stroke)=>{ sx.beginPath(); pts.forEach(([x,y],i)=>i?sx.lineTo(x*W,y*H):sx.moveTo(x*W,y*H)); sx.closePath(); if(fill){sx.fillStyle=fill; sx.fill();} if(stroke){sx.strokeStyle=stroke; sx.lineWidth=1; sx.stroke();} };
+    // painéis em diagonal (tons de grafite)
+    poly([[-.1,0],[.28,0],[.05,.62],[-.1,.62]],'rgba(255,255,255,.018)');
+    poly([[.42,0],[.72,0],[.5,.6],[.2,.6]],'rgba(255,255,255,.012)');
+    poly([[.78,.12],[1.1,.12],[1.1,.55],[.62,.55]],'rgba(255,255,255,.02)','rgba(255,255,255,.03)');
+    poly([[0,.7],[.55,.7],[.6,.78],[0,.78]],'rgba(0,0,0,.35)');
+    poly([[.35,.8],[1.1,.8],[1.1,1.1],[.25,1.1]],'rgba(255,255,255,.014)');
+    // moldura chanfrada superior (estilo HUD)
+    sx.strokeStyle='rgba(214,170,96,.16)'; sx.lineWidth=1; sx.beginPath();
+    sx.moveTo(W*.44,H*.09); sx.lineTo(W*.69,H*.09); sx.lineTo(W*.71,H*.135); sx.lineTo(W*1.02,H*.135); sx.stroke();
+    sx.beginPath(); sx.moveTo(W*.2,H*.9); sx.lineTo(W*.78,H*.9); sx.lineTo(W*.81,H*.86); sx.lineTo(W*1.02,H*.86); sx.stroke();
+    // vinheta
+    const v=sx.createRadialGradient(W*.5,H*.45,Math.min(W,H)*.2,W*.5,H*.5,Math.max(W,H)*.8); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.55)');
+    sx.fillStyle=v; sx.fillRect(0,0,W,H);
+  }
+  // linha diagonal com brilho que corre ao longo dela
+  function streak(s,t){
+    const x0=s.u*W*1.15, y0=0, L=s.len*Math.hypot(W,H), x1=x0+CA*L*-1, y1=y0-SA*L;
+    // base fraca
+    ctx.strokeStyle=G(.10); ctx.lineWidth=s.w; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+    // pulso de luz
+    const k=((t*s.v+s.ph)%1.4)-.2, px=x0+(x1-x0)*k, py=y0+(y1-y0)*k, span=.18;
+    const ax=x0+(x1-x0)*Math.max(0,k-span), ay=y0+(y1-y0)*Math.max(0,k-span), bx=x0+(x1-x0)*Math.min(1,k+span*.35), by=y0+(y1-y0)*Math.min(1,k+span*.35);
+    if(k>-.05&&k<1.1){ const gr=ctx.createLinearGradient(ax,ay,bx,by); gr.addColorStop(0,G(0)); gr.addColorStop(.75,G2(.75)); gr.addColorStop(1,G2(0));
+      ctx.save(); ctx.shadowColor=G2(.9); ctx.shadowBlur=14; ctx.strokeStyle=gr; ctx.lineWidth=s.w+1.2; ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke(); ctx.restore();
+      if(k>0&&k<1){ const rg=ctx.createRadialGradient(px,py,0,px,py,26); rg.addColorStop(0,G2(.35)); rg.addColorStop(1,G2(0)); ctx.fillStyle=rg; ctx.fillRect(px-26,py-26,52,52); } }
+  }
+  function frame(now,force){
+    if(!run&&!force) return;
+    if(!force&&now-last<33){ requestAnimationFrame(frame); return; } last=now;
+    const t=(now-T0)/1000;
+    ctx.drawImage(st,0,0,W,H);
+    // matriz de pontos (esquerda) com onda de brilho
+    const gx=mob?9:14, gy=mob?12:16, sp=mob?11:13, ox=W*.012, oy=H*.33;
+    for(let i=0;i<gx;i++) for(let j=0;j<gy;j++){
+      const fade=1-i/gx, w=Math.sin(t*1.6-(i*.55+j*.35))*.5+.5, a=(.10+.55*w*w)*fade;
+      ctx.fillStyle=G(a); ctx.fillRect(ox+i*sp,oy+j*sp,1.6,1.6); }
+    // faixas diagonais
+    ctx.lineCap='round'; streaks.forEach(s=>streak(s,t));
+    // linhas horizontais inferiores com luz varrendo
+    [[.79,.10,.8,1],[.835,.06,1,.6],[.875,.25,.55,.9],[.93,.0,1,.5]].forEach(([y,xa,xb,w],k)=>{
+      const Y=H*y; ctx.strokeStyle=G(.13); ctx.lineWidth=w; ctx.beginPath(); ctx.moveTo(W*xa,Y); ctx.lineTo(W*xb,Y); ctx.stroke();
+      const m=((t*.07+k*.27)%1.3)-.15, cx=W*(xa+(xb-xa)*m), gr=ctx.createLinearGradient(cx-W*.16,0,cx+W*.04,0);
+      gr.addColorStop(0,G(0)); gr.addColorStop(.85,G2(.7)); gr.addColorStop(1,G2(0)); ctx.strokeStyle=gr; ctx.lineWidth=w+.6; ctx.beginPath(); ctx.moveTo(Math.max(W*xa,cx-W*.16),Y); ctx.lineTo(Math.min(W*xb,cx+W*.04),Y); ctx.stroke(); });
+    // clarão no canto inferior esquerdo (respira devagar)
+    const fl=.22+.1*Math.sin(t*.7), fr=ctx.createRadialGradient(0,H*.88,0,0,H*.88,W*.32); fr.addColorStop(0,G2(fl)); fr.addColorStop(.35,G(fl*.25)); fr.addColorStop(1,G(0));
+    ctx.fillStyle=fr; ctx.fillRect(0,H*.55,W*.4,H*.45);
+    // chevrons do canto superior direito
+    const cx0=W*.71, cy0=H*.105; for(let k=0;k<5;k++){ const a=.25+.55*Math.max(0,Math.sin(t*2.2-k*.7)); ctx.fillStyle=G(a);
+      ctx.beginPath(); const x=cx0+k*11; ctx.moveTo(x,cy0+9); ctx.lineTo(x+6,cy0-5); ctx.lineTo(x+10,cy0-5); ctx.lineTo(x+4,cy0+9); ctx.closePath(); ctx.fill(); }
+    // poeira dourada
+    dust.forEach(d=>{ d.y-=d.s; d.x+=Math.sin(t*.5+d.p)*.12; if(d.y<-5){ d.y=H+5; d.x=Math.random()*W; }
+      ctx.fillStyle=G2(d.a*(.6+.4*Math.sin(t*2+d.p))); ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.283); ctx.fill(); });
+    // espelha o fundo nas telas que cobrem a página (login do escritório)
+    document.querySelectorAll('.lg').forEach(lg=>{ if(lg.style.display==='none') return; let m=lg.querySelector(':scope>canvas.bgmir');
+      if(!m){ m=document.createElement('canvas'); m.className='bgmir'; m.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none'; lg.prepend(m); }
+      if(m.width!==cv.width||m.height!==cv.height){ m.width=cv.width; m.height=cv.height; } m.getContext('2d').drawImage(cv,0,0); });
+    if(!RM) requestAnimationFrame(frame);
+  }
+  addEventListener('resize',()=>{ clearTimeout(resize._t); resize._t=setTimeout(resize,150); });
+  document.addEventListener('visibilitychange',()=>{ run=!document.hidden; if(run&&!RM){ last=0; requestAnimationFrame(frame); } });
+  resize(); if(!RM) requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
