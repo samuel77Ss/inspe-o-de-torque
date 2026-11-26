@@ -687,7 +687,7 @@ function renderJ(){
   const d=P.d===today()?P.d:today();
   $('#sheet').innerHTML=head+`
     ${man?'<div class="note man"><b>Chumbador – aperto manual.</b> Sem torquímetro e sem torque de tabela.</div>':''}
-    <label class="f"><span>Data</span><input type="date" id="bd" value="${d}"></label>
+    <label class="f"><span>Data do torque (execução)</span><input type="date" id="bd" value="${d}" max="${today()}"></label>
     <label class="f"><span>Executante</span><select id="be">${exeOpts()}</select></label>
     <div class="${man?'hide':''}">
       <label class="f"><span>Torquímetro</span><select id="bt"><option value="">— selecione —</option>${TM.map(t=>{const s=tmSit(t,d); return `<option value="${esc(t.n)}" ${s.k==='venc'?'disabled':''} ${t.n===P.tm&&s.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}–${t.emax} N·m${s.k==='venc'?' (vencido)':s.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label>
@@ -708,6 +708,7 @@ function renderJ(){
   if(!man){ $('#bt').onchange=msg; $('#bq').oninput=msg; msg(); }
   $('#bgo').onclick=async()=>{
     const dd=$('#bd').value, r='', e=$('#be').value==='__outro'?'':$('#be').value.trim(), tm=man?'':$('#bt').value, q=man?'':$('#bq').value;
+    if(!dd||dd>today()){ toast('Informe a data do torque (não pode ser data futura).'); return; }
     if(!dd) return toast('Informe a data.');
     if(!e){ $('#be').focus(); return toast('Informe o executante.'); }
     if(!man){ if(!tm){ $('#bt').focus(); return toast('Selecione o torquímetro.'); } if(tmSit(TM.find(x=>x.n===tm),dd).k==='venc') return toast('Torquímetro vencido nesta data.');
@@ -738,7 +739,7 @@ function openLote(){
     <div class="lotelist">${js.slice(0,60).map(j=>`<div>${esc(tagTxt(j))}<small>El. ${esc(j.elev)} · ${esc(j.fila)} / ${esc(j.eixo)} · ${isMan(j)?'aperto manual':esc(pares(j).join(' + '))}</small></div>`).join('')}${js.length>60?`<div class="muted">… e mais ${js.length-60}</div>`:''}</div>
     ${man.length?`<div class="note man"><b>${man.length} chumbador(es)</b> entram como aperto manual, sem torquímetro.</div>`:''}
     ${semD?`<div class="note warn">${semD} junta(s) sem bitola definida: o resultado fica OK sem conferir a faixa.</div>`:''}
-    <label class="f"><span>Data</span><input type="date" id="ld" value="${d}"></label>
+    <label class="f"><span>Data do torque (execução)</span><input type="date" id="ld" value="${d}" max="${today()}"></label>
     <label class="f"><span>Executante</span><select id="le2">${exeOpts()}</select></label>
     ${tq.length?`<label class="f"><span>Torquímetro</span><select id="lt"><option value="">— selecione —</option>${TM.map(t=>{const st=tmSit(t,d); return `<option value="${esc(t.n)}" ${st.k==='venc'?'disabled':''} ${t.n===P.tm&&st.k!=='venc'?'selected':''}>${esc(t.n)} · ${t.emin}–${t.emax} N·m${st.k==='venc'?' (vencido)':st.k==='aviso'?' ⚠':''}</option>`;}).join('')}</select></label>
       <div class="f"><span>Torque aplicado (N·m) – por diâmetro</span><div class="tqgrid">${ds.map((x,k)=>{const r=TQ.get(x); return `<label><b>${esc(x)}</b><small>${r?r.min+' a '+r.max:''}</small><input type="number" inputmode="numeric" data-d="${esc(x)}" class="ltq" placeholder="${r?r.min:''}"></label>`;}).join('')}</div></div>`:''}
@@ -754,6 +755,7 @@ function openLote(){
   if($('#lt')){ $('#lt').onchange=msg; document.querySelectorAll('.ltq').forEach(i=>i.oninput=msg); msg(); }
   $('#lgo2').onclick=async()=>{
     const dd=$('#ld').value, r='', e=$('#le2').value==='__outro'?'':$('#le2').value.trim(), tm=tq.length?$('#lt').value:'', v=vals();
+    if(!dd||dd>today()){ toast('Informe a data do torque (não pode ser data futura).'); return; }
     if(!dd) return toast('Informe a data.'); if(!e){ $('#le2').focus(); return toast('Informe o executante.'); }
     if(tq.length){ if(!tm) return toast('Selecione o torquímetro.'); if(tmSit(TM.find(x=>x.n===tm),dd).k==='venc') return toast('Torquímetro vencido nesta data.');
       const falta=ds.filter(x=>v[x]==null); if(falta.length) return toast('Informe o torque de '+falta.join(', ')+'.'); }
@@ -819,7 +821,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.25-1536'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.26-0738'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
