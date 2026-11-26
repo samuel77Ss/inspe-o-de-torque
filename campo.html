@@ -821,7 +821,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
 </script>
 <script>
 // ===== Aviso de nova versão: compara com version.json publicado; botão "Atualizar" limpa o cache e recarrega =====
-(function(){ const V='2026.11.26-0738'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
+(function(){ const V='2026.11.26-0746'; window.APP_VERSION=V; if(!/^https?:/.test(location.protocol)) return;
   const IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>';
   const tried=()=>{ try{ return JSON.parse(sessionStorage.getItem('upd_try')||'{}'); }catch(e){ return {}; } };
   async function chk(){ try{ const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) return; const j=await r.json();
@@ -944,6 +944,17 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigat
   document.addEventListener('visibilitychange',()=>{ run=!document.hidden; if(run&&!RM){ last=0; requestAnimationFrame(frame); } });
   resize(); if(!RM) requestAnimationFrame(frame);
 })();
+</script>
+<style>input[type=date]{color-scheme:dark;cursor:pointer}input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.85) sepia(.4) saturate(2) hue-rotate(5deg);opacity:1;width:22px;height:22px;cursor:pointer}.dchips{display:flex;gap:6px;margin:6px 0 10px;flex-wrap:wrap}.dchips button{padding:6px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;font-size:12.5px}.dchips button.on{border-color:#C9A15E;color:#E8C78A;background:rgba(201,161,94,.12)}</style>
+<script>
+// calendário: tocar em qualquer parte do campo abre o seletor de data; atalhos Hoje / Ontem / Anteontem
+document.addEventListener('click',e=>{ const el=e.target.closest('input[type=date]'); if(el&&el.showPicker){ try{ el.showPicker(); }catch(_){} } });
+new MutationObserver(()=>{ document.querySelectorAll('#bd,#ld').forEach(inp=>{ if(inp.dataset.chips) return; inp.dataset.chips=1;
+  const box=document.createElement('div'); box.className='dchips'; const dia=n=>{ const d=new Date(); d.setDate(d.getDate()-n); return d.toLocaleDateString('sv-SE'); };
+  [['Hoje',0],['Ontem',1],['Anteontem',2]].forEach(([t,n])=>{ const b=document.createElement('button'); b.type='button'; b.textContent=t; b.dataset.v=dia(n);
+    b.onclick=()=>{ inp.value=b.dataset.v; inp.dispatchEvent(new Event('change',{bubbles:true})); inp.dispatchEvent(new Event('input',{bubbles:true})); mark(); }; box.appendChild(b); });
+  const mark=()=>box.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===inp.value)); inp.addEventListener('change',mark); mark();
+  inp.closest('label')? inp.closest('label').after(box) : inp.after(box); }); }).observe(document.body,{childList:true,subtree:true});
 </script>
 </body>
 </html>
