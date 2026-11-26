@@ -9,7 +9,7 @@
   const DK = 'torque_demo_cloud_v1', UK = DK+'_user_'+location.pathname;
   const dLoad = ()=>{ try{ return JSON.parse(localStorage.getItem(DK))||{baixas:{},tm:null,users:{},log:[]}; }catch(e){ return {baixas:{},tm:null,users:{},log:[]}; } };
   const dSave = o=>localStorage.setItem(DK, JSON.stringify(o));
-  function demoEmit(){ const o=dLoad(); H.onBaixas && H.onBaixas(o.baixas); if(o.tm && H.onTm) H.onTm(o.tm); }
+  function demoEmit(){ const o=dLoad(); C.isAdmin=true; H.onBaixas && H.onBaixas(o.baixas); H.onCorr && H.onCorr(o.corr||{}); if(o.tm && H.onTm) H.onTm(o.tm); }
 
   // ---------------- FIREBASE ----------------
   let app, auth, db, unsubs=[];
@@ -33,6 +33,8 @@
         H.onBaixas && H.onBaixas(map, snap.metadata.fromCache);
         H.onStatus && H.onStatus();
       }, err=>{ H.onStatus && H.onStatus('Erro de acesso ao banco: '+err.code); }));
+      unsubs.push(FB.onSnapshot(FB.collection(db,'correcoes'), snap=>{ const m={}; snap.forEach(d=>m[d.id]=d.data()); H.onCorr && H.onCorr(m); }, ()=>{}));
+      try{ const a=await FB.getDoc(FB.doc(db,'admins',u.uid)); C.isAdmin=a.exists(); }catch(e){ C.isAdmin=false; }
       unsubs.push(FB.onSnapshot(FB.doc(db,'config','torquimetros'), s=>{ if(s.exists() && H.onTm) H.onTm(s.data().lista||[]); }, ()=>{}));
     });
   }
@@ -76,6 +78,19 @@
     if(C.mode==='firebase') return Promise.all([ FB.deleteDoc(FB.doc(db,'baixas',String(item))), FB.addDoc(FB.collection(db,'historico'), log) ]);
     const o=dLoad(); delete o.baixas[String(item)]; o.log.push(log); dSave(o); setTimeout(demoEmit,0); return Promise.resolve();
   };
+  // conferência / correção de juntas pendentes (feita no campo ou no escritório)
+  C.setCorr = function(item, v, origem){
+    const data = Object.assign({}, v, { item:Number(item), por:C.user?C.user.email:'', nome:C.user?C.user.nome:'', origem:origem||'', quando:stamp() });
+    Object.keys(data).forEach(k=>{ if(data[k]===undefined) delete data[k]; });
+    const log = { item:Number(item), acao:'correcao', por:data.por, origem:data.origem, quando:stamp(), dados:v };
+    if(C.mode==='firebase') return Promise.all([ FB.setDoc(FB.doc(db,'correcoes',String(item)), data), FB.addDoc(FB.collection(db,'historico'), log) ]);
+    const o=dLoad(); o.corr=o.corr||{}; o.corr[String(item)]=Object.assign(data,{quando:new Date().toISOString()}); o.log.push(log); dSave(o); setTimeout(demoEmit,0); return Promise.resolve();
+  };
+  C.delCorr = function(item, origem){
+    const log = { item:Number(item), acao:'correcao desfeita', por:C.user?C.user.email:'', origem:origem||'', quando:stamp() };
+    if(C.mode==='firebase') return Promise.all([ FB.deleteDoc(FB.doc(db,'correcoes',String(item))), FB.addDoc(FB.collection(db,'historico'), log) ]);
+    const o=dLoad(); if(o.corr) delete o.corr[String(item)]; o.log.push(log); dSave(o); setTimeout(demoEmit,0); return Promise.resolve();
+  };
   // nomes dos usuários cadastrados (para inspetor / executante)
   C.listUsers = async function(){
     if(C.mode==='firebase'){ const q=await FB.getDocs(FB.collection(db,'usuarios')); const out=[]; q.forEach(d=>{ const v=d.data(); if(v.nome) out.push(v.nome); }); return out; }
@@ -90,6 +105,10 @@
       return fmt(n);
     }
     const o=dLoad(); o.relSeq=Math.max(o.relSeq||0, minimo||0)+1; dSave(o); return fmt(o.relSeq);
+  };
+  C.resetRel = async function(n){
+    if(C.mode==='firebase') return FB.setDoc(FB.doc(db,'config','relatorios'),{ultimo:n||0, upd:FB.serverTimestamp(), por:C.user?C.user.email:'', reiniciado:true});
+    const o=dLoad(); o.relSeq=n||0; dSave(o);
   };
   C.setTm = function(lista){
     if(C.mode==='firebase') return FB.setDoc(FB.doc(db,'config','torquimetros'), { lista, upd:stamp(), por:C.user?C.user.email:'' });
